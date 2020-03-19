@@ -17,38 +17,49 @@ module.exports = {
         `,
         run(message, ...arg) {
             if (arg[0].match(/{.+}/)) {
-                //TODO: Implement multi choice poll here
                 return false;
             } else {
-                //Set question to first line of bot message
-                const messageArray = [];
-                messageArray[0] = arg.join(' ');
-                message.channel.send(messageArray)
+                const question = arg.join(' ');
+                const messageEmbed = {
+                    title: question,
+                    fields: [
+                        {
+                            name: 'Yes',
+                            value: 0,
+                        },
+                        {
+                            name: 'No',
+                            value: 0,
+                        },
+                        {
+                            name: `Don't care`,
+                            value: 0,
+                        },
+                    ]
+                }
+                message.channel.send({ embed: messageEmbed })
                 .then(msg => {
                     msg.react('👍')
                     .then(() => { msg.react('👎') })
                     .then(() => { msg.react('🤷') })
                     .then(() => {
-                        //TODO: Replace message generation here with live results string function
-                        messageArray[1] = '```';
-                        messageArray[2] = `Now accepting responses! Poll will close after 1 minute.`;
-                        messageArray[3] = '```';
-                        msg.edit(messageArray);
+                        //Create reaction collector
                         const collector = msg.createReactionCollector((reaction, user) => {
                             return ['👍', '👎', '🤷'].includes(reaction.emoji.name) && user.id !== msg.author.id;
                         }, { time: 10000 });
 
                         collector.on('collect', (reaction, reactionCollector) => {
+                            //On reaction collected
                             getUserVotesArray(reactionCollector);
-                            messageArray[3] = `YES: X, NO: X, UNDECIDED: X`;
-                            messageArray[4] = '```';
-                            msg.edit(messageArray);
+                            
                         });
                         
                         collector.on('end', (collected) => {
-                            messageArray[4] = `The poll is now closed!`;
-                            messageArray[5] = '```';
-                            msg.edit(messageArray);
+                            //On timer up
+                            messageEmbed.footer = {
+                                text: 'Poll is now closed!'
+                            }
+                            msg.edit({ embed: messageEmbed });
                         });
                     });
                 });
