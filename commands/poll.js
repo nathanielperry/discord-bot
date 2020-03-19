@@ -1,10 +1,16 @@
-const getUserVotesArray = function(collector) {
-    collected = collector.collected;
-    console.log(collected);
-}
+const getUserVoteResultFields = function(collected) {
+    const counts = {
+        yes: collected.get('👍') ? collected.get('👍').count - 1 : 0,
+        no: collected.get('👎') ? collected.get('👎').count - 1 : 0,
+        shrug: collected.get('🤷') ? collected.get('🤷').count - 1 : 0,
+    }
 
-const getLiveResultsString = function() {
-    //TODO: Generate and return live results string here 
+    return [
+        {
+            name: 'Results',
+            value: `YES: ${counts.yes} / NO: ${counts.no} / SHRUG: ${counts.shrug}`,
+        },
+    ]
 }
 
 module.exports = {
@@ -14,28 +20,22 @@ module.exports = {
             Create a new poll, either multiple choice or a simple yes or no.
             e.g. "!poll Is ratbot a good bot?"
             For multiple choice: "!poll {title} [option 1] [option 2] [option 3] etc."
+            NOTE: Multiple choise not yet implemented.
         `,
         run(message, ...arg) {
             if (arg[0].match(/{.+}/)) {
+                message.channel.send('Multiple choice polling not yet implemented. Sorry!');
                 return false;
             } else {
                 const question = arg.join(' ');
                 const messageEmbed = {
                     title: question,
                     fields: [
-                        {
-                            name: 'Yes',
-                            value: 0,
-                        },
-                        {
-                            name: 'No',
-                            value: 0,
-                        },
-                        {
-                            name: `Don't care`,
-                            value: 0,
-                        },
-                    ]
+                        { name: 'Results', value: 'Pending'}
+                    ],
+                    footer: {
+                        text: 'Vote now!'
+                    }
                 }
                 message.channel.send({ embed: messageEmbed })
                 .then(msg => {
@@ -46,16 +46,11 @@ module.exports = {
                         //Create reaction collector
                         const collector = msg.createReactionCollector((reaction, user) => {
                             return ['👍', '👎', '🤷'].includes(reaction.emoji.name) && user.id !== msg.author.id;
-                        }, { time: 10000 });
-
-                        collector.on('collect', (reaction, reactionCollector) => {
-                            //On reaction collected
-                            getUserVotesArray(reactionCollector);
-                            
-                        });
+                        }, { time: 30000 });
                         
                         collector.on('end', (collected) => {
                             //On timer up
+                            messageEmbed.fields = getUserVoteResultFields(collected);
                             messageEmbed.footer = {
                                 text: 'Poll is now closed!'
                             }
