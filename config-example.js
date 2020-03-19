@@ -1,8 +1,9 @@
 // Add token from discord bot and rename file to config.js //
 
-import basic from './commands/basic';
-import poll from './commands/poll';
-import global from './commands/global';
+const basic = require('./commands/basic');
+const poll = require('./commands/poll');
+const global = require('./commands/global');
+const luck = require('./commands/luck');
 
 export default {
     token: '[DISCORD BOT TOKEN HERE]',
@@ -11,7 +12,8 @@ export default {
             name: 'basic',
             commands: [
                 basic,
-                poll
+                poll,
+                luck
             ],
             context: [/.*/]
         },
