@@ -12,13 +12,4 @@ module.exports = {
             }
         }
     },
-    say: {
-        description: `Repeat some words.`,
-        help: `
-            Says whatever is after the command.
-        `,
-        run(message, ...args) {
-            message.channel.send(args.join(' '));
-        }
-    },
 }
