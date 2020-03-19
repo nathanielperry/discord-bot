@@ -4,10 +4,11 @@ const { commandGroups } = require('./config');
 const commandController = function () {
     return {
         commandGroups,
-        getAvailableCommands(currentContext) {
-            //Returns new object containing all available commands for a given context (Channel)
-            return this.commandGroups.reduce((available, group) => {
-                if(group.context.find((groupContext) => {
+        getAvailableCommands(currentContext, userRoles) {
+            let available = {};
+
+            this.commandGroups.forEach(group => {
+                const groupMatchesContext = group.context.find((groupContext) => {
                     if (groupContext instanceof RegExp) {
                         //Regular Expression Check
                         return groupContext.test(currentContext);
@@ -15,21 +16,25 @@ const commandController = function () {
                         //If not RegExp, exact value comparison
                         return currentContext === groupContext;
                     }
-                })) {
-                    //If currentContext matches any groupContext, add commands to available list
-                    return Object.assign(available, ...group.commands);
-                } else {
-                    return available;
+                });
+
+                const groupMatchesUserRole = group.roles ? userRoles.some(role => group.roles.includes(role.name)) : true;
+
+                if (groupMatchesContext && groupMatchesUserRole) {
+                    available = Object.assign(available, ...group.commands);
                 }
-            }, {});
+            });
+
+            return available;
         },
         processCommand(message) {
             //Search for matching command and run it, passing any arguments
             const { command, args } = getCommandAndArgs(message);
             const context = message.channel.name;
+            const userRoles = message.member.roles;
 
             //Get object containing all commands for given channel (context).
-            const availableCommands = this.getAvailableCommands(context);
+            const availableCommands = this.getAvailableCommands(context, userRoles);
 
             if (availableCommands[command]) {
                 try {

@@ -3,6 +3,7 @@
 const basic = require('./commands/basic');
 const poll = require('./commands/poll');
 const global = require('./commands/global');
+const admin = require('./commands/admin');
 const luck = require('./commands/luck');
 
 export default {
@@ -23,6 +24,14 @@ export default {
                 global
             ],
             context: [/.*/]
-        }
+        },
+        {
+            name: 'admin',
+            commands: [
+                admin
+            ],
+            context: [/.*/],
+            roles: ['Admins'],
+        },
     ]
 }
