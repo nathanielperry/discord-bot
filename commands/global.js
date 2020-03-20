@@ -1,12 +1,18 @@
 module.exports = {
     help: {
-        description: `List commands or read about command usage.`,
+        description: `List all commands or read about command usage.`,
         help: `
-            Nobody can help you.
+            Use help by itself to list all available commands.
+            Add a command as an argument to learn more about that command.
+            e.g. "!help help" to learn more about the help command!
+            Something tells me you already figured that one out.
         `,
         hide: true,
         run(message, command) {
-            const commands = this.getAvailableCommands(message.channel.name);
+            const commands = this.getAvailableCommands(
+                message.channel.name, 
+                message.member.roles
+            );
             if (!command) {
                 const lines = [];
                 lines.push(`Command List:`)

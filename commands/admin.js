@@ -10,11 +10,14 @@ module.exports = {
         run(message, arg, ...content) {
             const guild = message.channel.guild;
             const targetChannel = guild.channels.find(channel => {
+                //Find matching text only channel.
                 return channel.name === arg && channel.type === 'text';
             });
-            if (targetChannel) { //TODO: Check if target channel is a text channel also.
+            if (targetChannel) {
+                //If channel exists, send content.
                 targetChannel.send(content.join(' '));
             } else {
+                //If not, give error response.
                 message.channel.send(`${arg} is not an existing text channel.`)
             }
         }
