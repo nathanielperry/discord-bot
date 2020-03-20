@@ -3,8 +3,8 @@ module.exports = {
         description: `Repeats message to given channel name.`,
         help: `
             Speak as the bot in any channel!
-            Use formate: !repeat [channel-name] [message]
-            e.g. "!repeat general How y'all! It's me, the bot!"
+            Use format: !repeat [channel-name] [message]
+            e.g. "!repeat general Howdy y'all! It's me, the bot!"
         `,
         hide: true,
         run(message, arg, ...content) {
