@@ -10,8 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "common-tags": "^1.8.0",
-    "discord.js": "^11.5.1",
-    "underscore": "^1.9.1"
+    "discord.js": "^11.6.3",
+    "underscore": "^1.9.2"
   },
   "devDependencies": {
     "nodemon": "^2.0.2"
