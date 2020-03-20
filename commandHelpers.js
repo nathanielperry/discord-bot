@@ -9,3 +9,23 @@ exports.getCommandAndArgs = function (message) {
         args
     }
 }
+
+exports.fetchMessageById = function (guild, messageId) {
+    const messages = guild.channels.map(channel => {
+        //Only search in text channels
+        if (channel.type !== 'text') {
+            return null;
+        }
+        //Return promise array, containing all attempts
+        return channel.fetchMessage(messageId).then(msg => {
+            return msg;
+        }).catch(err => {
+            return null;
+        });
+    });
+
+    return Promise.all(messages).then(messages => {
+        //Get fetched message from all fetch attempts
+        return messages.find(msg => msg);
+    });
+}

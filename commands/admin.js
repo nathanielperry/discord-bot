@@ -1,3 +1,5 @@
+const { fetchMessageById } = require('../commandHelpers');
+
 module.exports = {
     repeat: {
         description: `Repeats message to given channel name.`,
@@ -31,24 +33,7 @@ module.exports = {
         `,
         hide: true,
         run(message, messageId, emoji) {
-            //TODO: Move this message search to a helper function
-            //Find message by ID in entire guild
-            const messages = message.guild.channels.map(channel => {
-                //Only search in text channels
-                if (channel.type !== 'text') {
-                    return null;
-                }
-                //Return promise array, containing all attempts
-                return channel.fetchMessage(messageId).then(msg => {
-                    return msg;
-                }).catch(err => {
-                    return null;
-                });
-            });
-
-            Promise.all(messages).then(messages => {
-                //Get fetched message from all fetch attempts
-                const fetchedMessage = messages.find(msg => msg);
+            fetchMessageById(message.guild, messageId).then(fetchedMessage => {
                 if (!fetchedMessage) {
                     //If no message found, send error response.
                     message.channel.send('Unable to find message by that ID.');
