@@ -1,5 +1,3 @@
 node_modules
-perilous
-/commands/perilousTables.js
 *.env.*
 !.env.example
