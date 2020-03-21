@@ -1,6 +1,9 @@
+require('dotenv').config({
+    path: `./config/.env.${process.env.NODE_ENV}`
+});
+
 const Discord = require('discord.js');
 const commandController = require('./commandController');
-const config = require('./config');
 
 const cmd = commandController();
 const client = new Discord.Client();
@@ -24,4 +27,4 @@ client.on('message', (message) => {
     }
 });
 
-client.login(config.token);
+client.login(process.env.DISCORD_TOKEN);
