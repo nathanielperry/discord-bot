@@ -1,5 +1,4 @@
 node_modules
-config.js
 perilous
 /commands/perilousTables.js
 *.env.*
