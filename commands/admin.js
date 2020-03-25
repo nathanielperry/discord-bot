@@ -13,7 +13,7 @@ module.exports = {
             const guild = message.channel.guild;
             const targetChannel = guild.channels.find(channel => {
                 //Find matching text only channel.
-                return channel.name === arg && channel.type === 'text';
+                return channel.name.includes(arg) && channel.type === 'text';
             });
             if (targetChannel) {
                 //If channel exists, send content.
