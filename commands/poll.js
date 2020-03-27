@@ -64,19 +64,19 @@ const generatePoll = function (channel, title, options, duration = 5000) {
             //On timer up
             //Add reaction count to each option of options array
             const talliedOptions = options.map(option => {
-                return Object.assign(option, {
+                return Object.assign({ ...option }, {
                     count: collected.get(option.emoji) ? collected.get(option.emoji).count - 1 : 0,
                 });
             });
 
             //Create embed message showing results
-            const padLength = getLongestStringLength(options.map((opt) => opt.name));
+            const padLength = getLongestStringLength(talliedOptions.map((opt) => opt.name));
             const pollEndMessageEmbed = {
                 title,
                 fields: [
                     {
                         name: 'Results',
-                        value: '```' + options.map((option) => {
+                        value: '```' + talliedOptions.map((option) => {
                             return option.name.padEnd(padLength, ' ') + ' : ' + option.count.toString().padStart(2, ' ');
                         }).join('\n') + '```',
                         code: true,
