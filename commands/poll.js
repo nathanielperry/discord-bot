@@ -39,16 +39,6 @@ const generatePoll = function (channel, title, options, duration = 30000) {
     //Send message and react to it with options list
     channel.send({ embed: pollBeginMessageEmbed })
     .then(async msg => {
-        //Send each reaction in sequence
-        //Use reduce function to create dynamic promise chain based on options list
-        await options.reduce(
-            (p, option) => p.then(() => msg.react(option.emoji)),
-            Promise.resolve(null)
-        );
-
-        return msg;
-    })
-    .then(msg => {
         //Create array to track users that already voted
         const alreadyVoted = [];
         
@@ -97,9 +87,16 @@ const generatePoll = function (channel, title, options, duration = 30000) {
 
             msg.edit({ embed: pollEndMessageEmbed });
         });
+
+        //React to post with each option emoji in sequence
+        //Use reduce function to create dynamic promise chain based on options list
+        await options.reduce(
+            (p, option) => p.then(() => msg.react(option.emoji)),
+            Promise.resolve(null)
+        );
+
+        return msg;
     });
-
-
 }
 
 module.exports = {
