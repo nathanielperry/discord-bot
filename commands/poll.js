@@ -2,7 +2,7 @@ const getLongestStringLength = function(stringArray) {
     return stringArray.reduce((a, b) => (a.length > b.length ? a : b), '').length;
 }
 
-const generatePoll = function (channel, title, options, duration = 5000) {
+const generatePoll = function (channel, title, options, duration = 30000) {
     //Accepts options list and then generates new poll.
     //EXAMPLE:
     //generatePoll(channel, 'Question goes here', [
@@ -11,18 +11,26 @@ const generatePoll = function (channel, title, options, duration = 5000) {
         //  { emoji: '🤷', name: 'Shrug' },
     //]);
 
+    //Group options into columns of size, colSize
+    let optionGroups = [];
+    const colSize = 3;
+    for (let i = 0; i < options.length; i += colSize) {
+        optionGroups.push(options.slice(i, i + colSize));
+    }
+    
     //Build message embed detailing options
     let pollBeginMessageEmbed = {
         title,
-        fields: [
-            {
-                name: 'Options',
-                value: options.map(opt => {
+        //For each column, create an inline field with those options
+        fields: optionGroups.map((group, i) => {
+            return {
+                name: i < 1 ? 'Options' : '--',
+                value: group.map(opt => {
                     return opt.emoji + ' ' + opt.name;
                 }).join('\n\n'),
                 inline: true,
             }
-        ],
+        }),
         footer: { 
             text: 'Vote now! Only the first vote per person is counted.',
         }
@@ -127,6 +135,7 @@ module.exports = {
                     //Get title between curly braces 
                     const title = pollString.match(/{(.+?)}/)[1];
                     
+                    //Get all bracket pairs and map contents to array
                     const optionNames = arg
                         .join(' ')
                         .match(/\[.+?\]/g)
@@ -140,7 +149,8 @@ module.exports = {
                         message.channel.send(`Multi-choice poll cannot have more than 9 choices.`);
                         return false;
                     }
-    
+                    
+                    //Create option objects and assign number emojis
                     const options = optionNames.map((name, i) => {
                         return {
                             name,
