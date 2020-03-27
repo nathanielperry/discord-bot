@@ -43,9 +43,22 @@ module.exports = {
                     .then(() => { msg.react('👎') })
                     .then(() => { msg.react('🤷') })
                     .then(() => {
+                        //Array to track users that already voted
+                        const alreadyVoted = [];
+
                         //Create reaction collector
                         const collector = msg.createReactionCollector((reaction, user) => {
-                            return ['👍', '👎', '🤷'].includes(reaction.emoji.name) && user.id !== msg.author.id;
+                            if (alreadyVoted.includes(user.id)) {
+                                //User already voted in this poll
+                                //Reject reaction
+                                return false;
+                            } else if (['👍', '👎', '🤷'].includes(reaction.emoji.name) && user.id !== msg.author.id) {
+                                //User selected appropriate emoji
+                                //Add user id to alreadyVoted array
+                                alreadyVoted.push(user.id);
+                                //Collect reaction
+                                return true;
+                            }
                         }, { time: 30000 });
                         
                         collector.on('end', (collected) => {
