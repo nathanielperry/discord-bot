@@ -1,4 +1,4 @@
-const { createMultiChoiceMessageEmbed } = require('./../commandHelpers');
+const { createMultiChoiceEmbedFields, reactInSequence } = require('./../commandHelpers');
 
 const getLongestStringLength = function(stringArray) {
     return stringArray.reduce((a, b) => (a.length > b.length ? a : b), '').length;
@@ -13,8 +13,14 @@ const generatePoll = function (channel, title, options, duration = 30000) {
         //  { emoji: '🤷', name: 'Shrug' },
     //]);
 
-    const pollBeginMessageEmbed = createMultiChoiceMessageEmbed(title, 'Vote now! The poll is currently open. Only your first reaction will be counted.', options);
-    
+    const pollBeginMessageEmbed = {
+        title,
+        fields: createMultiChoiceEmbedFields(options),
+        footer: { 
+            text: 'Vote now! The poll is currently open. Only your first reaction will be counted.',
+        }
+    }
+
     //Send message and react to it with options list
     channel.send({ embed: pollBeginMessageEmbed })
     .then(async msg => {
@@ -69,12 +75,7 @@ const generatePoll = function (channel, title, options, duration = 30000) {
 
         //React to post with each option emoji in sequence
         //Use reduce function to create dynamic promise chain based on options list
-        await options.reduce(
-            (p, option) => p.then(() => msg.react(option.emoji)),
-            Promise.resolve(null)
-        );
-
-        return msg;
+        return reactInSequence(msg, options.map(option => option.emoji));
     });
 }
 

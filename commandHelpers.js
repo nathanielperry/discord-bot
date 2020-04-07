@@ -11,7 +11,7 @@ const defaultEmojis = [
     "\u0039\u20E3", //9
 ];
 
-exports.getCommandAndArgs = function (message) {
+const getCommandAndArgs = function (message) {
     //Return object containing command (name of command) and args (list of arguments)
     const messageArray = message.content.split(' ');
     const command = messageArray[0].substr(1);
@@ -23,7 +23,7 @@ exports.getCommandAndArgs = function (message) {
     }
 }
 
-exports.fetchMessageById = function (guild, messageId) {
+const fetchMessageById = function (guild, messageId) {
     const messages = guild.channels.map(channel => {
         //Only search in text channels
         if (channel.type !== 'text') {
@@ -43,16 +43,7 @@ exports.fetchMessageById = function (guild, messageId) {
     });
 }
 
-exports.createMultiChoiceMessageEmbed = function (title, footer, options) {
-    //OPTIONS EXAMPLE:
-    //sendReactOptionsMessage(channel, 'Question goes here', [
-        //  { emoji: '👍', name: 'Yes' },
-        //  { emoji: '👎', name: 'No' },
-        //  { emoji: '🤷', name: 'Shrug' },
-    //]);
-
-    //TODO: Need error check to ensure same emoji is not used more than once.
-
+const createMultiChoiceEmbedFields = function(options) {
     //Give options without an emoji a default emoji
     let nextNumberEmoji = 1;
     options.forEach(option => {
@@ -66,22 +57,129 @@ exports.createMultiChoiceMessageEmbed = function (title, footer, options) {
     for (let i = 0; i < options.length; i += colSize) {
         optionGroups.push(options.slice(i, i + colSize));
     }
-    
-    //Build message embed detailing options
-    return {
-        title,
-        //For each column, create an inline field with those options
-        fields: optionGroups.map((group, i) => {
-            return {
-                name: i < 1 ? 'Options' : '--',
-                value: group.map(opt => {
-                    return opt.emoji + ' ' + opt.name;
-                }).join('\n\n'),
-                inline: true,
-            }
-        }),
-        footer: { 
-            text: footer,
+
+    //For each column, create an inline field with those options
+    //Return array of embed fields
+    return optionGroups.map((group, i) => {
+        return {
+            name: i < 1 ? 'Options' : '--',
+            value: group.map(opt => {
+                return opt.emoji + ' ' + opt.name;
+            }).join('\n\n'),
+            inline: true,
         }
+    });
+}
+
+const reactInSequence = async function(message, emojis) {
+    await emojis.reduce(
+        (p, emoji) => p.then(() => message.react(emoji)),
+        Promise.resolve(null)
+    );
+    return message;
+}
+
+const sendControllerDM = function(user, options) {
+    //Send messages via DM and create new controller object
+    /* 
+    * Options: title (String), description (String), footer (String), commands (Array), buttons (Array),
+    * closeTitle (String), closeDescription, (String), closeFooter (String),
+    * hideCommandKey (Boolean), hideButtonKey (Boolean)
+    * 
+    * EXAMPLE OPTIONS OBJECT: {
+    *   title: 'Poll Controller',
+    *   description: 'Press 🚫 to close the poll and display the results!'
+    *   commands: [
+    *       { command: 'close', callback: [function] },
+    *       { command: 'extend', help: 'Extend the poll length by 10 minutes', 'callback: [function] }
+    *   ],
+    *   buttons: [
+    *       { emoji: '🚫', name:'Close Poll', callback: [function] },
+    *       { name: 'Add 10 minutes to poll', callback: [function] }
+    *   ],
+    *   hideButtonKey: true,
+    * }
+    */
+
+    //Generate embed fields for message, commands, and buttons options.
+    const embedFields = [];
+    if (options.commands && !options.hideCommandKey) {
+        embedFields.push({
+            name: 'Commands',
+            value: options.commands.map(cmd => `!${cmd.command}${cmd.help ? ` - ${cmd.help}` : ''}`).join('\n'),
+        })
     }
+    if (options.buttons && !options.hideButtonKey) {
+        embedFields.push(...createMultiChoiceEmbedFields(options.buttons));
+    }
+    const embed = {
+        title: options.title || 'Command Options',
+        description: options.description || null,
+        footer: options.footer ? { text: options.footer } : null,
+        fields: embedFields
+    }
+
+    //Send embed
+    user.send({ embed }).then(msg => {
+        //Context object provides helper functions to controller callbacks.
+        const context = {
+            //Stop all collectors and edit controller message to indicate closure.
+            close() {
+                if(this.messageCollector) {
+                    this.messageCollector.stop();
+                }
+                if(this.reactionCollector) {
+                    this.reactionCollector.stop();
+                }
+
+                embed.title = options.closedTitle || embed.title + ' - Closed';
+                embed.description = options.closedDescription || embed.description;
+                embed.footer = { text: options.closedFooter || 'This controller has been closed! No more commands may be used.' };
+                msg.edit({ embed });
+            }
+        };
+
+        if (options.commands) {
+            context.messageCollector = msg.channel.createMessageCollector(m => m.content.startsWith('!'));
+            //On collect, trigger callback if valid command
+            context.messageCollector.on('collect', m => {
+                const { command, args } = getCommandAndArgs(m);
+                const cmdObject = options.commands.find(o => o.command === command);
+                if (cmdObject.callback) {
+                    //Trigger callback, bound to context object.
+                    cmdObject.callback.bind(context)(m, ...args);
+                } else {
+                    throw Error("Missing callback for command: " + command);
+                }
+            });
+        }
+
+        if (options.buttons) {
+            context.reactionCollector = msg.createReactionCollector((reaction, user) => {
+                //Filter collects all reactions in buttons list, ignoring bot
+                return options.buttons.map((btn) => btn.emoji).includes(reaction.emoji.name) && user.id !== msg.author.id;
+            });
+
+            context.reactionCollector.on('collect', reaction => {
+                const cmdObject = options.buttons.find(o => o.emoji === reaction.emoji.name);
+                if (cmdObject.callback) {
+                    //Trigger callback, bound to context object.
+                    cmdObject.callback.bind(context)(msg);
+                } else {
+                    throw Error("Missing callback for command: " + command);
+                }
+            });
+    
+            //React to controller message
+            reactInSequence(msg, options.buttons.map(btn => btn.emoji));
+        }
+    });
+}
+
+module.exports = {
+    getCommandAndArgs,
+    fetchMessageById,
+    reactInSequence,
+    createMultiChoiceEmbedFields,
+    sendControllerDM,
 }

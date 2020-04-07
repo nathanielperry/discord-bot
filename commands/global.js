@@ -1,3 +1,13 @@
+const { sendControllerDM } = require('./../commandHelpers');
+
+const testCallback = function(message, arg) {
+    message.channel.send('testCallback triggered successfully' + (arg ? ` with argument: ${arg} ` : '') + '!');
+}
+
+const testClose = function() {
+    this.close();
+}
+
 module.exports = {
     test: {
         description: `Just a test command! Nothing to see here!`,
@@ -9,6 +19,20 @@ module.exports = {
             message.channel.send('You ran the test command! Good job!');
             if (arg === 'error') {
                 throw "Generated a fake error!";
+            }
+
+            if (arg === 'dm') {
+                sendControllerDM(message.author, {
+                    description: 'Test message',
+                    commands: [
+                        { command: 'test', help: 'Run basic test command.', callback: testCallback },
+                        { command: 'close', help: 'Close this controller.', callback: testClose },
+                    ],
+                    buttons: [
+                        { name: 'Button Test', callback: (message) => testCallback(message, 'button') },
+                        { emoji: '🚫', name: 'Close Test', callback: testClose },
+                    ]
+                });
             }
         }
     },
