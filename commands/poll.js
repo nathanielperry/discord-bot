@@ -1,3 +1,5 @@
+const { createMultiChoiceMessageEmbed } = require('./../commandHelpers');
+
 const getLongestStringLength = function(stringArray) {
     return stringArray.reduce((a, b) => (a.length > b.length ? a : b), '').length;
 }
@@ -11,30 +13,7 @@ const generatePoll = function (channel, title, options, duration = 30000) {
         //  { emoji: '🤷', name: 'Shrug' },
     //]);
 
-    //Group options into columns of size, colSize
-    let optionGroups = [];
-    const colSize = 3;
-    for (let i = 0; i < options.length; i += colSize) {
-        optionGroups.push(options.slice(i, i + colSize));
-    }
-    
-    //Build message embed detailing options
-    let pollBeginMessageEmbed = {
-        title,
-        //For each column, create an inline field with those options
-        fields: optionGroups.map((group, i) => {
-            return {
-                name: i < 1 ? 'Options' : '--',
-                value: group.map(opt => {
-                    return opt.emoji + ' ' + opt.name;
-                }).join('\n\n'),
-                inline: true,
-            }
-        }),
-        footer: { 
-            text: 'Vote now! Only the first vote per person is counted.',
-        }
-    }
+    const pollBeginMessageEmbed = createMultiChoiceMessageEmbed(title, 'Vote now! The poll is currently open. Only your first reaction will be counted.', options);
     
     //Send message and react to it with options list
     channel.send({ embed: pollBeginMessageEmbed })
@@ -115,19 +94,6 @@ module.exports = {
                 request contains any curly 
                 braces or square brackets */
                 if (pollString.match(/{(.+?)}\s*\[.+\]/)) {
-                    const numberEmojis = [
-                        "\u0030\u20E3",
-                        "\u0031\u20E3",
-                        "\u0032\u20E3",
-                        "\u0033\u20E3",
-                        "\u0034\u20E3",
-                        "\u0035\u20E3",
-                        "\u0036\u20E3",
-                        "\u0037\u20E3",
-                        "\u0038\u20E3",
-                        "\u0039\u20E3",
-                    ];
-    
                     //If message matches multi-choice poll format
                     //Get title between curly braces 
                     const title = pollString.match(/{(.+?)}/)[1];
@@ -151,7 +117,6 @@ module.exports = {
                     const options = optionNames.map((name, i) => {
                         return {
                             name,
-                            emoji: numberEmojis[i + 1],
                         }
                     });
     
