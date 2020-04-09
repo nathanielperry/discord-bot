@@ -119,61 +119,54 @@ const sendControllerDM = function(user, options) {
         fields: embedFields
     }
 
-    //Send embed
-    user.send({ embed }).then(msg => {
-        //Context object provides helper functions to controller callbacks.
-        const context = {
-            //Stop all collectors and edit controller message to indicate closure.
+    return user.send({ embed }).then(msg => {
+        const controller = {
+            embed,
+            messageCollector: msg.channel.createMessageCollector(m => m.content.startsWith('!')),
+            reactionCollector: msg.createReactionCollector((reaction, user) => {
+                //Filter collects all reactions in buttons list, ignoring bot
+                return options.buttons.map((btn) => btn.emoji).includes(reaction.emoji.name) && user.id !== msg.author.id;
+            }),
             close() {
-                if(this.messageCollector) {
-                    this.messageCollector.stop();
-                }
-                if(this.reactionCollector) {
-                    this.reactionCollector.stop();
-                }
+                //Close collectors
+                this.messageCollector.stop();
+                this.reactionCollector.stop();
 
+                //Update embed to indicate controller has been closed. Use custom options if provided.
                 embed.title = options.closedTitle || embed.title + ' - Closed';
                 embed.description = options.closedDescription || embed.description;
                 embed.footer = { text: options.closedFooter || 'This controller has been closed! No more commands may be used.' };
                 embed.fields = [];
-                msg.edit({ embed });
+                this.update();
+            },
+            update() {
+                msg.edit({ embed: this.embed });
             }
-        };
-
-        if (options.commands) {
-            context.messageCollector = msg.channel.createMessageCollector(m => m.content.startsWith('!'));
-            //On collect, trigger callback if valid command
-            context.messageCollector.on('collect', m => {
-                const { command, args } = getCommandAndArgs(m);
-                const cmdObject = options.commands.find(o => o.command === command);
-                if (cmdObject.callback) {
-                    //Trigger callback, bound to context object.
-                    cmdObject.callback.bind(context)(m, ...args);
-                } else {
-                    throw Error("Missing callback for command: " + command);
-                }
-            });
         }
 
-        if (options.buttons) {
-            context.reactionCollector = msg.createReactionCollector((reaction, user) => {
-                //Filter collects all reactions in buttons list, ignoring bot
-                return options.buttons.map((btn) => btn.emoji).includes(reaction.emoji.name) && user.id !== msg.author.id;
-            });
+        //On collect, trigger callback if valid command
+        controller.messageCollector.on('collect', m => {
+            const { command, args } = getCommandAndArgs(m);
+            const cmdObject = options.commands.find(o => o.command === command);
+            if (cmdObject) {
+                //Trigger callback, bound to controller.
+                cmdObject.callback.bind(controller)(m, ...args);
+            }
+        });
 
-            context.reactionCollector.on('collect', reaction => {
-                const cmdObject = options.buttons.find(o => o.emoji === reaction.emoji.name);
-                if (cmdObject.callback) {
-                    //Trigger callback, bound to context object.
-                    cmdObject.callback.bind(context)(msg);
-                } else {
-                    throw Error("Missing callback for command: " + command);
-                }
-            });
-    
-            //React to controller message
-            reactInSequence(msg, options.buttons.map(btn => btn.emoji));
-        }
+        controller.reactionCollector.on('collect', reaction => {
+            const cmdObject = options.buttons.find(o => o.emoji === reaction.emoji.name);
+            if (cmdObject) {
+                //Trigger callback, bound to context object.
+                cmdObject.callback.bind(controller)(msg);
+            }
+        });
+
+        //Add reaction buttons to controller message.
+        reactInSequence(msg, options.buttons.map(btn => btn.emoji));
+
+        //Return controller (will come as Promise)
+        return controller;
     });
 }
 

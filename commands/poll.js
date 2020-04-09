@@ -1,10 +1,14 @@
 const { createMultiChoiceEmbedFields, reactInSequence, sendControllerDM } = require('./../commandHelpers');
+const dateFns = require('date-fns');
+
+const activePollUsers = [];
+let pollId = 0;
 
 const getLongestStringLength = function(stringArray) {
     return stringArray.reduce((a, b) => (a.length > b.length ? a : b), '').length;
 }
 
-const generatePoll = function (author, channel, title, options, duration = 60000 * 10) {
+const generatePoll = function (author, channel, title, options, duration = 5 * 60000) {
     //Accepts options list and then generates new poll.
     //EXAMPLE:
     //generatePoll(channel, 'Question goes here', [
@@ -13,59 +17,82 @@ const generatePoll = function (author, channel, title, options, duration = 60000
         //  { emoji: '🤷', name: 'Shrug' },
     //]);
 
-    const pollBeginMessageEmbed = {
-        title,
-        fields: createMultiChoiceEmbedFields(options),
-        footer: { 
-            text: 'Vote now! The poll is currently open. Only your first reaction will be counted.',
-        }
+    const poll = {
+        id: pollId++,
+        closeDate: Date.now() + duration,
+        alreadyVoted: [],
+        beginMessageEmbed: {
+            title,
+            fields: createMultiChoiceEmbedFields(options),
+            footer: {
+                text: '',
+            }
+        },
     }
 
     //Send message and react to it with options list
-    channel.send({ embed: pollBeginMessageEmbed })
-    .then(async msg => {
-        //Create array to track users that already voted
-        const alreadyVoted = [];
-        
+    channel.send({ embed: poll.beginMessageEmbed })
+    .then(async msg => {        
         //Create new reaction collector and await reactions
-        const collector = msg.createReactionCollector((reaction, user) => {
-            if (alreadyVoted.includes(user.id)) {
+        poll.collector = msg.createReactionCollector((reaction, user) => {
+            if (poll.alreadyVoted.includes(user.id)) {
                 //User already voted in this poll
                 //Reject reaction
                 return false;
             } else if (options.map((opt) => opt.emoji).includes(reaction.emoji.name) && user.id !== msg.author.id) {
                 //User selected appropriate emoji and has not already voted
                 //Add user id to alreadyVoted array
-                alreadyVoted.push(user.id);
+                poll.alreadyVoted.push(user.id);
                 //Collect reaction
                 return true;
             }
-        }, { time: duration });
+        });
 
         //Send controller for ending or extending poll
-        sendControllerDM(author, {
+        poll.pollController = sendControllerDM(author, {
             title: 'Poll Controller',
             description: 'Press 🚫 to close the poll and display the results!',
             closedDescription: 'The poll has been closed.',
             commands: [
                 { command: 'close', callback: function() {
-                    collector.stop();
-                    this.close(); 
+                    poll.closeDate = Date.now();
                 }},
-                { command: 'extend', help: 'Extend the poll length by 10 minutes', callback: () => null },
+                { command: 'extend', help: 'Extend the poll length by X minutes, e.g. "!extend 10"', callback: function(msg, dur) {
+                    poll.closeDate += dur * 60000;
+                    msg.channel.send(`Poll Extended to ${dateFns.format(poll.closeDate, 'hh:mm aa')}`);
+                }},
             ],
             buttons: [
                 { emoji: '🚫', name:'Close Poll', callback: function() {
-                    collector.stop();
-                    this.close(); 
+                    poll.closeDate = Date.now();
                 }},
             ],
             hideButtonKey: true,
         });
 
+        poll.pollController.then(ctrl => {
+            //Update time to close in message and check if poll should be closed due to timeout
+            poll.pollInterval = setInterval(() => {
+                if (!poll.collector.ended && Date.now() >= poll.closeDate) {
+                    ctrl.close();
+                    poll.collector.stop();
+                    //Remove user from active list
+                    activePollUsers.splice(
+                        activePollUsers.indexOf(author.id), 1
+                    );
+                } else {
+                    poll.beginMessageEmbed.footer.text = `Vote now! The poll will automatically close in ${dateFns.formatDistance(Date.now(), poll.closeDate)}.`;
+                    msg.edit({ embed: poll.beginMessageEmbed });
+                }
+
+                if (poll.collector.ended) {
+                    clearInterval(poll.pollInterval);
+                }
+            }, 1000);
+        });
+
         //On collector end, edit message with results
-        collector.on('end', (collected) => {
-            //On timer up
+        poll.collector.on('end', (collected) => {
             //Add reaction count to each option of options array
             const talliedOptions = options.map(option => {
                 return Object.assign({ ...option }, {
@@ -111,6 +138,22 @@ module.exports = {
         `,
         run(message, ...arg) {
             const pollString = arg.join(' ');
+            
+            if (!pollString) {
+                message.channel.send("Must include a poll title/question.");
+                return false;
+            }
+
+            if (activePollUsers.length > 0) {
+                message.channel.send(
+                    "Max one active poll at a time while this feature continues to be updated."
+                    + "\n Sorry for the inconvenience!"
+                );
+                return false;
+            }
+
+            activePollUsers.push(message.author.id);
+
             if (pollString.match(/[{}\[\]]/)) {
                 /* Test as multi-choice if 
                 request contains any curly 
