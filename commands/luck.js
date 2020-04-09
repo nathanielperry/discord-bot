@@ -71,27 +71,33 @@ module.exports = {
         `,
         run(message, arg) {
             message.channel.send(`Flipping a coin...`);
-            flipResult = Math.random() >= 0.5 ? 'Heads' : 'Tails';
+            const flipResult = Math.random() >= 0.5 ? 'Heads' : 'Tails';
+            let call = null;
+
             if (arg === 'call') {
                 message.channel.send('Someone call it! e.g. "!call heads". You have 30 seconds.');
-                message.channel.awaitMessages(msg => {
+                const collector = message.channel.createMessageCollector(msg => {
                     const { command, args } = getCommandAndArgs(msg);
                     return command === 'call' && (args[0] === 'heads' || args[0] === 'tails');
-                }, { max: 1, time: 30000, errors: ['time'] })
-                .then(collected => {
-                    message.channel.send(`The result is: ${flipResult}!`);
-                    const msg = collected.first();
-                    const { args } = getCommandAndArgs(msg);
+                }, { time: 30000, errors: ['time'] });
 
-                    if (args[0].toLowerCase() === flipResult.toLowerCase()) {
-                        message.channel.send(`${msg.author} called it! Nice!`);
-                    } else {
-                        message.channel.send(`Sorry, ${msg.author}, you didn't call it.`);
-                    }
-                }).catch(error => {
-                    console.log(error);
+                collector.on('collect', msg => {
+                    const { args } = getCommandAndArgs(msg);
+                    call = args[0].toLowerCase();
+                    collector.stop();
+                });
+                
+                collector.on('end', collected => {
+                    const caller = collected.first() ? collected.first().author : null;
                     message.channel.send(`The result is: ${flipResult}!`);
-                    message.channel.send(`Nobody called it in time.`);
+
+                    if (caller && call === flipResult.toLowerCase()) {
+                        message.channel.send(`${caller} called it! Nice!`);
+                    } else if (caller && call !== flipResult.toLowerCase()) {
+                        message.channel.send(`Sorry, ${msg.author}, you didn't call it.`);
+                    } else {
+                        message.channel.send(`Nobody called it in time.`);
+                    }
                 });
             } else {
                 message.channel.send(`The result is: ${flipResult}!`);
