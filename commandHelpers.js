@@ -135,6 +135,7 @@ const sendControllerDM = function(user, options) {
                 embed.title = options.closedTitle || embed.title + ' - Closed';
                 embed.description = options.closedDescription || embed.description;
                 embed.footer = { text: options.closedFooter || 'This controller has been closed! No more commands may be used.' };
+                embed.fields = [];
                 msg.edit({ embed });
             }
         };

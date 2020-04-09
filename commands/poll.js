@@ -1,10 +1,10 @@
-const { createMultiChoiceEmbedFields, reactInSequence } = require('./../commandHelpers');
+const { createMultiChoiceEmbedFields, reactInSequence, sendControllerDM } = require('./../commandHelpers');
 
 const getLongestStringLength = function(stringArray) {
     return stringArray.reduce((a, b) => (a.length > b.length ? a : b), '').length;
 }
 
-const generatePoll = function (channel, title, options, duration = 30000) {
+const generatePoll = function (author, channel, title, options, duration = 60000 * 10) {
     //Accepts options list and then generates new poll.
     //EXAMPLE:
     //generatePoll(channel, 'Question goes here', [
@@ -41,6 +41,27 @@ const generatePoll = function (channel, title, options, duration = 30000) {
                 return true;
             }
         }, { time: duration });
+
+        //Send controller for ending or extending poll
+        sendControllerDM(author, {
+            title: 'Poll Controller',
+            description: 'Press 🚫 to close the poll and display the results!',
+            closedDescription: 'The poll has been closed.',
+            commands: [
+                { command: 'close', callback: function() {
+                    collector.stop();
+                    this.close(); 
+                }},
+                { command: 'extend', help: 'Extend the poll length by 10 minutes', callback: () => null },
+            ],
+            buttons: [
+                { emoji: '🚫', name:'Close Poll', callback: function() {
+                    collector.stop();
+                    this.close(); 
+                }},
+            ],
+            hideButtonKey: true,
+        });
 
         //On collector end, edit message with results
         collector.on('end', (collected) => {
@@ -121,13 +142,13 @@ module.exports = {
                         }
                     });
     
-                    generatePoll(message.channel, title, options);
+                    generatePoll(message.author, message.channel, title, options);
                 } else {
                     message.channel.send('Poll request contains curly or square braces but is not formmated correctly for a multi-choice poll.');
                 }
             } else {
                 const title = pollString;
-                generatePoll(message.channel, title, [
+                generatePoll(message.author, message.channel, title, [
                      { emoji: '👍', name: 'Yes' },
                      { emoji: '👎', name: 'No' },
                      { emoji: '🤷', name: 'Shrug' },
