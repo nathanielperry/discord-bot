@@ -91,7 +91,7 @@ module.exports = {
                     if (caller && call === flipResult.toLowerCase()) {
                         message.channel.send(`${caller} called it! Nice!`);
                     } else if (caller && call !== flipResult.toLowerCase()) {
-                        message.channel.send(`Sorry, ${msg.author}, you didn't call it.`);
+                        message.channel.send(`Sorry, ${caller}, you didn't call it.`);
                     } else {
                         message.channel.send(`Nobody called it in time.`);
                     }
