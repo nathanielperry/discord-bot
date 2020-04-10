@@ -1,4 +1,4 @@
-const { getCommandAndArgs } = require('../commandHelpers');
+const { throwCommandError, getCommandAndArgs } = require('../commandHelpers');
 
 module.exports = {
     roll: {
@@ -17,8 +17,7 @@ module.exports = {
 
             dice.forEach((die) => {
                 if (!dieExpression.test(die)) {
-                    message.channel.send(`${die} is not a valid roll.`);
-                    return;
+                    throwCommandError(`${die} is not a valid roll.`);
                 }
                 const params = dieExpression.exec(die);
                 const numDice = params[1];
@@ -27,11 +26,9 @@ module.exports = {
                 let results = [];
                 
                 if (parseInt(numFaces) === 1 && exploding){
-                    message.channel.send(`Are you trying to kill me?`);
-                    return;
+                    throwCommandError(`You rolled: infinity! What a roll!`);
                 } else if (parseInt(numDice) > 30) {
-                    message.channel.send(`Nobody needs to roll that much dice.`);
-                    return;
+                    throwCommandError(`Too many dice!`);
                 }
 
                 message.channel.send(

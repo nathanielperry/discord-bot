@@ -1,4 +1,4 @@
-const { fetchMessageById } = require('../commandHelpers');
+const { throwCommandError, fetchMessageById } = require('../commandHelpers');
 
 module.exports = {
     repeat: {
@@ -20,7 +20,7 @@ module.exports = {
                 targetChannel.send(content.join(' '));
             } else {
                 //If not, give error response.
-                message.channel.send(`${arg} is not an existing text channel.`)
+                throwCommandError(`${arg} is not an existing text channel.`)
             }
         }
     },
@@ -36,10 +36,10 @@ module.exports = {
             fetchMessageById(message.guild, messageId).then(fetchedMessage => {
                 if (!fetchedMessage) {
                     //If no message found, send error response.
-                    message.channel.send('Unable to find message by that ID.');
+                    throwCommandError('Unable to find message by that ID.');
                 } else {
                     fetchedMessage.react(emoji).catch(err => {
-                        message.channel.send('Not a valid emoji.');
+                        throwCommandError('Not a valid emoji.');
                     });
                 }
             });

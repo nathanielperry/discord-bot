@@ -11,6 +11,13 @@ const defaultEmojis = [
     "\u0039\u20E3", //9
 ];
 
+const throwCommandError = function(message) {
+    throw {
+        name: 'commandError',
+        message
+    }
+}
+
 const getCommandAndArgs = function (message) {
     //Return object containing command (name of command) and args (list of arguments)
     const messageArray = message.content.split(' ');
@@ -171,6 +178,7 @@ const sendControllerDM = function(user, options) {
 }
 
 module.exports = {
+    throwCommandError,
     getCommandAndArgs,
     fetchMessageById,
     reactInSequence,

@@ -23,7 +23,16 @@ client.on('message', (message) => {
 
     //Process command if incoming message starts with '!'.
     if (message.content.startsWith('!')){
-        cmd.processCommand(message);
+        try {
+            cmd.processCommand(message);
+        } catch(err) {
+            if (err.name === 'commandError') {
+                message.channel.send(err.message);
+            } else {
+                message.channel.send(`Looks like there was an uncaught error. Ping your channel admin to let them know!`)
+                console.error(err);
+            }
+        }
     }
 });
 

@@ -45,21 +45,13 @@ const commandController = function () {
             const availableCommands = this.getAvailableCommands(context, userRoles);
 
             if (availableCommands[command]) {
-                //If command exists:
-                try {
-                    //Try to run command
-                    //Bind the command to the commandController so it can access
-                    //any command controller functions
-                    availableCommands[command].run.bind(this)(message, ...args);
-                } 
-                catch(error) {
-                    //If command produces error, log it and send generic error to channel.
-                    console.log(error);
-                    message.channel.send(`Something broke when you used the !${command} command.`);
-                }
+                //If command exists, try to run command
+                //Bind the command to the commandController so it can access
+                //any command controller functions
+                availableCommands[command].run.bind(this)(message, ...args);
             } else {
-                //If command does not exist (in availableCommands) send not valid error
-                message.channel.send(`${command} is not a valid command.`);
+                //If command does not exist (in availableCommands) throw not valid error
+                throwCommandError(`${command} is not a valid command.`);
             }
         }
     } 
