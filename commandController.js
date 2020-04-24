@@ -1,4 +1,4 @@
-const { getCommandAndArgs } = require('./commandHelpers');
+const { getCommandAndArgs, throwCommandError } = require('./commandHelpers');
 const { commandGroups } = require('./config/command-mapping');
 
 const commandController = function () {
