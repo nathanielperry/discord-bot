@@ -5,7 +5,7 @@
   "main": "bot.js",
   "scripts": {
     "start": "NODE_ENV=production node bot.js",
-    "dev": "NODE_ENV=development node bot.js"
+    "dev": "NODE_ENV=development nodemon bot.js"
   },
   "author": "Nathaniel Perry",
   "license": "ISC",
