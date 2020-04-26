@@ -1,4 +1,4 @@
-const defaultEmojis = [
+const numberEmojis = [
     "\u0030\u20E3", //0
     "\u0031\u20E3", //1
     "\u0032\u20E3", //2
@@ -55,7 +55,7 @@ const createMultiChoiceEmbedFields = function(options) {
     let nextNumberEmoji = 1;
     options.forEach(option => {
         //TODO: Need error check for more than 9 options using default emojis.
-        option.emoji = option.emoji ? option.emoji : defaultEmojis[nextNumberEmoji++];
+        option.emoji = option.emoji ? option.emoji : numberEmojis[nextNumberEmoji++];
     });
 
     //Group options into columns of size, colSize
