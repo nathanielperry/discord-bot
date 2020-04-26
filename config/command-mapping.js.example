@@ -15,7 +15,7 @@ module.exports = {
             context: [/.*/]
         },
         {
-            name: 'Adming Only',
+            name: 'Admin Only',
             commands: [
                 admin
             ],
