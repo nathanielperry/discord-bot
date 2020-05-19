@@ -28,16 +28,11 @@ const commandController = function () {
             return available;
         },
         processCommand(message) {
-            //Do not process if command came via DM
-            if (message.guild === null) {
-                return false;
-            }
-
             //Search for matching command and run it, passing any arguments
             const { command, args } = getCommandAndArgs(message);
             //Get context (channel command is sent from)
-            //and get roles of person sending command
-            //to determine which commands are available to them
+            //and roles of person sending command to
+            //determine which commands are available to them
             const context = message.channel.name;
             const userRoles = message.member.roles;
 

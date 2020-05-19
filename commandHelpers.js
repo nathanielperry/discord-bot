@@ -79,6 +79,7 @@ const createMultiChoiceEmbedFields = function(options) {
 }
 
 const reactInSequence = async function(message, emojis) {
+    //Use reduce/promise magic to react to a message in sequence. 
     await emojis.reduce(
         (p, emoji) => p.then(() => message.react(emoji)),
         Promise.resolve(null)
@@ -87,6 +88,7 @@ const reactInSequence = async function(message, emojis) {
 }
 
 const sendControllerDM = function(user, options) {
+    //TODO: Refactor into DMController class to better encapsulate independant controllers
     //Send messages via DM and create new controller object
     /* 
     * Options: title (String), description (String), footer (String), commands (Array), buttons (Array),

@@ -8,7 +8,7 @@ const commandController = require('./commandController');
 const cmd = commandController();
 const client = new Discord.Client();
 
-//Connect to servers
+//Setup event listeners
 client.on('ready', () => {
     console.log(`Connected as ${client.user.tag}`);
     console.log(`Servers: `);
@@ -18,8 +18,9 @@ client.on('ready', () => {
 });
 
 client.on('message', (message) => {
-    //Ignore bots including self.
+    //Ignore bots including self, DMs.
     if (message.author.bot) return;
+    if (message.guild === null) return;
 
     //Process command if incoming message starts with '!'.
     if (message.content.startsWith('!')){
