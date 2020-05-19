@@ -44,9 +44,6 @@ const commandController = function () {
                 //Bind the command to the commandController so it can access
                 //any command controller functions
                 availableCommands[command].run.bind(this)(message, ...args);
-            } else {
-                //If command does not exist (in availableCommands) throw not valid error
-                throwCommandError(`${command} is not a valid command.`);
             }
         }
     } 
