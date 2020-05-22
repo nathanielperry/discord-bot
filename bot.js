@@ -29,10 +29,10 @@ class Bot {
         });
     }
 
-    addMessageHandler(handlers) {
+    addMessageHandler(subHandlers) {
         //Create new handler stack
         const handler = new Middleware();
-        handlers.forEach(h => {
+        subHandlers.forEach(h => {
             handler.use(h);
         });
 
