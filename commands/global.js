@@ -44,25 +44,20 @@ module.exports = {
             e.g. "!help help" to learn more about the help command!
             Something tells me you already figured that one out.
         `,
-        hide: true,
         run(message, command) {
-            const commands = this.getAvailableCommands(
-                message.channel.name, 
-                message.member.roles
-            );
             if (!command) {
                 const lines = [];
                 lines.push(`Command List:`)
-                Object.keys(commands).forEach((key) => {
-                    if(!commands[key].hide) {
-                        lines.push(`${key} - ${commands[key].description}`);
+                Object.keys(this.commands).forEach((key) => {
+                    if(!this.commands[key].hide) {
+                        lines.push(`${key} - ${this.commands[key].description}`);
                     }
                 });
                 message.channel.send(lines.join('\n'), {
                     code: true
                 });
-            } else if (commands[command]) {
-                const help = commands[command].help.replace(/^\s+/gm, '');
+            } else if (this.commands[command]) {
+                const help = this.commands[command].help.replace(/^\s+/gm, '');
                 message.channel.send(help, {
                     code: true
                 });
