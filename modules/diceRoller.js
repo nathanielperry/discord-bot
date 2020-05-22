@@ -1,4 +1,4 @@
-const { throwCommandError } = require('../util/commandHelpers');
+const { throwUserError } = require('../util/commandHelpers');
 
 const rollDice = (diceString) => {
     const dieExpression = /(\d*)d(\d+)(!?)/;
@@ -6,7 +6,7 @@ const rollDice = (diceString) => {
 
     return dice.map((die) => {
         if (!dieExpression.test(die)) {
-            throwCommandError(`${die} is not a valid roll.`);
+            throwUserError(`${die} is not a valid roll.`);
         }
         const params = dieExpression.exec(die);
         const numDice = params[1] || 1;
@@ -15,11 +15,11 @@ const rollDice = (diceString) => {
         let results = [];
 
         if (parseInt(numFaces) <= 0) {
-            throwCommandError(`Sorry, I don't how to roll a 0 sided die!`);
+            throwUserError(`Sorry, I don't how to roll a 0 sided die!`);
         } else if (parseInt(numFaces) === 1 && exploding){
-            throwCommandError(`You rolled: infinity! What a roll!`);
+            throwUserError(`You rolled: infinity! What a roll!`);
         } else if (parseInt(numDice) > 20) {
-            throwCommandError(`Too many dice! Please don't roll more than 20 at a time..`);
+            throwUserError(`Too many dice! Please don't roll more than 20 at a time..`);
         }
 
         for (x = 0; x < numDice; x++) {

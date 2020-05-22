@@ -11,9 +11,9 @@ const numberEmojis = [
     "\u0039\u20E3", //9
 ];
 
-const throwCommandError = function(message) {
+const throwUserError = function(message) {
     throw {
-        name: 'commandError',
+        name: 'userError',
         message
     }
 }
@@ -182,7 +182,7 @@ const sendControllerDM = function(user, options) {
 }
 
 module.exports = {
-    throwCommandError,
+    throwUserError,
     getCommandAndArgs,
     fetchMessageById,
     reactInSequence,

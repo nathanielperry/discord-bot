@@ -19,7 +19,7 @@ class Bot {
             try {
                 this.handlers.run(message);
             } catch (err) {
-                if (err.name === 'commandError') {
+                if (err.name === 'userError') {
                     message.channel.send(err.message);
                 } else {
                     message.channel.send(`Looks like there was an uncaught error. Ping your channel admin to let them know!`)

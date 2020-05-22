@@ -1,4 +1,4 @@
-const { throwCommandError, sendControllerDM } = require('../util/commandHelpers');
+const { throwUserError, sendControllerDM } = require('../util/commandHelpers');
 
 const testCallback = function(message, arg) {
     message.channel.send('testCallback triggered successfully' + (arg ? ` with argument: ${arg} ` : '') + '!');
@@ -67,7 +67,7 @@ module.exports = {
                     code: true
                 });
             } else {
-                throwCommandError(`${command} is not a valid command.`);
+                throwUserError(`${command} is not a valid command.`);
             }
         }
     },  

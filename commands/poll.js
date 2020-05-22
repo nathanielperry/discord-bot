@@ -1,4 +1,4 @@
-const { throwCommandError, createMultiChoiceEmbedFields, reactInSequence, sendControllerDM } = require('../util/commandHelpers');
+const { throwUserError, createMultiChoiceEmbedFields, reactInSequence, sendControllerDM } = require('../util/commandHelpers');
 const dateFns = require('date-fns');
 
 const activePollUsers = [];
@@ -140,12 +140,12 @@ module.exports = {
             const pollString = arg.join(' ');
             
             if (!pollString) {
-                throwCommandError("Must include a poll title/question.");
+                throwUserError("Must include a poll title/question.");
                 return false;
             }
 
             if (activePollUsers.length > 0) {
-                throwCommandError(
+                throwUserError(
                     "Max one active poll at a time while this feature continues to be updated."
                     + "\n Sorry for the inconvenience!"
                 );
@@ -171,9 +171,9 @@ module.exports = {
     
                     //Check if there are more than 1 and less than 10 options.
                     if (optionNames.length <= 1) {
-                        throwCommandError(`You must have more than one option for a multiple choice poll.`);
+                        throwUserError(`You must have more than one option for a multiple choice poll.`);
                     } else if (optionNames.length > 9) {
-                        throwCommandError(`Multi-choice poll cannot have more than 9 choices.`);
+                        throwUserError(`Multi-choice poll cannot have more than 9 choices.`);
                     }
                     
                     //Create option objects and assign number emojis
@@ -185,7 +185,7 @@ module.exports = {
     
                     generatePoll(message.author, message.channel, title, options);
                 } else {
-                    throwCommandError('Poll request contains curly or square braces but is not formmated correctly for a multi-choice poll.');
+                    throwUserError('Poll request contains curly or square braces but is not formmated correctly for a multi-choice poll.');
                 }
             } else {
                 const title = pollString;
