@@ -9,7 +9,8 @@ const commandHandler = function (commands, prefix = process.env.PREFIX) {
         if (!message.content.startsWith(prefix)) return next();
 
         //Search for matching command and run it, passing any arguments
-        const { command, args } = getCommandAndArgs(message, prefix);
+        let { command, args } = getCommandAndArgs(message, prefix);
+        command = command.toLowerCase();
 
         if (commands[command]) {
             //If command exists, try to run command
