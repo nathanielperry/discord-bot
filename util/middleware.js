@@ -20,3 +20,5 @@ class Middleware {
         this.next();
     }
 }
+
+module.exports = Middleware;

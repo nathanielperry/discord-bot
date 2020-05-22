@@ -1,4 +1,4 @@
-const { throwCommandError, sendControllerDM } = require('./../commandHelpers');
+const { throwCommandError, sendControllerDM } = require('../util/commandHelpers');
 
 const testCallback = function(message, arg) {
     message.channel.send('testCallback triggered successfully' + (arg ? ` with argument: ${arg} ` : '') + '!');

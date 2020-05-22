@@ -1,4 +1,4 @@
-const { throwCommandError, fetchMessageById } = require('../commandHelpers');
+const { throwCommandError, fetchMessageById } = require('../util/commandHelpers');
 
 module.exports = {
     repeat: {

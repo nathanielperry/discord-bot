@@ -18,10 +18,10 @@ const throwCommandError = function(message) {
     }
 }
 
-const getCommandAndArgs = function (message) {
+const getCommandAndArgs = function (message, prefix) {
     //Return object containing command (name of command) and args (list of arguments)
     const messageArray = message.content.split(' ');
-    const command = messageArray[0].substr(1);
+    const command = messageArray[0].replace(new RegExp(`^${prefix}`), '');
     const args = messageArray.slice(1);
 
     return {

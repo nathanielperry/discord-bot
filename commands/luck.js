@@ -1,4 +1,4 @@
-const { throwCommandError, getCommandAndArgs } = require('../commandHelpers');
+const { throwCommandError, getCommandAndArgs } = require('../util/commandHelpers');
 
 module.exports = {
     roll: {

@@ -1,4 +1,4 @@
-const { throwCommandError, createMultiChoiceEmbedFields, reactInSequence, sendControllerDM } = require('./../commandHelpers');
+const { throwCommandError, createMultiChoiceEmbedFields, reactInSequence, sendControllerDM } = require('../util/commandHelpers');
 const dateFns = require('date-fns');
 
 const activePollUsers = [];
