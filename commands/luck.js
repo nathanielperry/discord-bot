@@ -2,61 +2,9 @@ const { throwCommandError, getCommandAndArgs } = require('../util/commandHelpers
 
 module.exports = {
     roll: {
-        description: `Roll some dice in the format: "2d6"`,
-        help: 
-            `Roll sets of dice by specifying the amount of dice and number of faces.
-            e.g. "!roll 2d6" will roll 2 6-sided dice.
-
-            Adding '!' to the end of the roll will cause the dice to explode. (Rolling max adds another die to the roll)
-            
-            You can also roll multiple sets at a time,
-            e.g. "!roll 2d6 10d4".
-        `,
-        run(message, ...dice) {
-            const dieExpression = /(\d+)d(\d+)(!?)/;
-
-            dice.forEach((die) => {
-                if (!dieExpression.test(die)) {
-                    throwCommandError(`${die} is not a valid roll.`);
-                }
-                const params = dieExpression.exec(die);
-                const numDice = params[1];
-                const numFaces = params[2];
-                const exploding = params[3] === '!';
-                let results = [];
-                
-                if (parseInt(numFaces) === 1 && exploding){
-                    throwCommandError(`You rolled: infinity! What a roll!`);
-                } else if (parseInt(numDice) > 30) {
-                    throwCommandError(`Too many dice!`);
-                }
-
-                message.channel.send(
-                    `Rolling ${numDice} d${numFaces}${exploding ? ' (Exploding)' : ''}...`
-                );
-                for (x = 0; x < numDice; x++) {
-                    let result = Math.floor(Math.random() * Math.floor(numFaces)) + 1;
-                    results.push(result);
-                    while (exploding && result === parseInt(numFaces)) {
-                        result = Math.floor(Math.random() * Math.floor(numFaces)) + 1;
-                        results.push(result);
-                    }
-                }
-
-                let sum = results.reduce((a, b) => a + b);
-
-                if (results.length > 1) { //multi dice result
-                    message.channel.send(`${results.join(' + ')} = ${sum}!`)
-                } else { //single die result
-                    message.channel.send(`${sum}!`)
-                }
-
-                if (sum > 9000) { //It's over 9000!
-                    message.channel.send(`It's over nine-thousaaaaaaand!`);
-                } else if (sum > 500) { //It's over 500!
-                    message.channel.send(`That's a lot of damage!`);
-                }
-            });
+        hide: true,
+        run(message) {
+            message.channel.send(`The !roll command has been deprecated. You can now roll dice by typing \`${process.env.PREFIX}d6\`, \`${process.env.PREFIX}3d8\`, \`${process.env.PREFIX}2d6 d10! 3d4\`, etc.  Add '!' at end for Acing/Exploding dice.`)
         }
     },
     flip: {

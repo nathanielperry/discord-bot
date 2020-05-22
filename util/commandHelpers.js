@@ -18,7 +18,9 @@ const throwCommandError = function(message) {
     }
 }
 
-const getCommandAndArgs = function (message, prefix) {
+const getCommandAndArgs = function (message, prefix = process.env.PREFIX) {
+    if (!prefix) throw Error('Missing command prefix. Please specify prefix as second argument to commandHandler, or in .env file.');
+
     //Return object containing command (name of command) and args (list of arguments)
     const messageArray = message.content.split(' ');
     const command = messageArray[0].replace(new RegExp(`^${prefix}`), '');

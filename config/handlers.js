@@ -1,5 +1,6 @@
 // const diceRoller = require('../modules/diceRoller');
 const commandHandler = require('../modules/commandHandler');
+const diceRoller = require('../modules/diceRoller');
 const { restrictToRoles, restrictToChannels, excludeChannels, excludeRoles } = require('../modules/filters');
 
 //Load commands
@@ -22,6 +23,7 @@ const basicFilter = (message, next) => {
 
 const basicHandler = [
     basicFilter,
+    diceRoller(),
     commandHandler({
         ...global,
         ...poll,
