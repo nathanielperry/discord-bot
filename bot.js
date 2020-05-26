@@ -1,5 +1,6 @@
 const Middleware = require('./util/middleware');
 const Discord = require('discord.js');
+const schedule = require('node-schedule');
 
 class Bot {
     constructor() {
@@ -8,7 +9,7 @@ class Bot {
 
         //Setup event listeners
         this.client.on('ready', () => {
-            console.log(`Connected as ${this.client.user.tag}`);
+            console.log(`Connected as ${this.client.user.tag}.`);
             console.log(`Servers: `);
             this.client.guilds.forEach((guild) => {
                 console.log(` - ${guild.name}`);
@@ -41,6 +42,10 @@ class Bot {
             handler.run(message);
             next();
         });
+    }
+
+    addScheduledTask(time, fn) {
+        schedule.scheduleJob(time, fn);
     }
 
     login() {

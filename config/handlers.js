@@ -8,6 +8,7 @@ const poll = require('../commands/poll');
 const global = require('../commands/global');
 const admin = require('../commands/admin');
 const luck = require('../commands/luck');
+const econ = require('../commands/econ');
 
 // const filter = {
 //     startsWith: '!',
@@ -28,6 +29,7 @@ const basicHandler = [
         ...global,
         ...poll,
         ...luck,
+        ...econ,
     }),
 ];
 
