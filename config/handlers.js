@@ -1,7 +1,7 @@
-// const diceRoller = require('../modules/diceRoller');
 const commandHandler = require('../modules/commandHandler');
 const diceRoller = require('../modules/diceRoller');
 const { restrictToRoles, restrictToChannels, excludeChannels, excludeRoles } = require('../modules/filters');
+const Database = require('../util/db');
 
 //Load commands
 const poll = require('../commands/poll');
@@ -10,11 +10,7 @@ const admin = require('../commands/admin');
 const luck = require('../commands/luck');
 const econ = require('../commands/econ');
 
-// const filter = {
-//     startsWith: '!',
-//     bot: false,
-//     dm: false,
-// };
+const userDatabase = new Database(process.env.MONGODB);
 
 const basicFilter = (message, next) => {
     if (message.author.bot) return;
@@ -22,23 +18,17 @@ const basicFilter = (message, next) => {
     next();
 }
 
+
 const basicHandler = [
     basicFilter,
     diceRoller(),
-    commandHandler({
-        ...global,
-        ...poll,
-        ...luck,
-        ...econ,
-    }),
+    commandHandler({ ...global, ...poll, ...luck, ...econ, }, { db: userDatabase, }),
 ];
 
 const adminHandler = [,
     basicFilter,
     restrictToRoles('Admins'),
-    commandHandler({
-        ...admin,
-    }),
+    commandHandler({ ...admin, }),
 ];
 
 module.exports = {

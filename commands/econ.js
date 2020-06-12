@@ -1,6 +1,4 @@
 const { throwUserError, fetchMessageById } = require('../util/commandHelpers');
-const mongoose = require('mongoose');
-const User = require('../models/User');
 
 module.exports = {
     join: {
@@ -11,21 +9,12 @@ module.exports = {
             active in the server within the last 24 hours.
         `,
         run(message, args) {
-            User.find({ userid: message.author.id }, (err, user) => {
-                if (err) throw err;
-                if (!user.length) {
-                    message.channel.send('Creating new user...');
-                    User.create({ userid: message.author.id });
-                } else {
-                    message.channel.send('User already joined.');
-                }
-            });
+            this.db.createUser(message.author.id);
         },
     },
     balance: {
         run(message) {
-            User.find({ userid: message.author.id }, (err, user) => {
-                if (err) throw err;
+            this.db.findUser(message.author.id).then(user => {
                 if (!user.length) {
                     message.channel.send('Use `!join` to start earning virtual income.');
                 } else {
@@ -37,7 +26,7 @@ module.exports = {
     },
     clear: {
         run (message) {
-            User.remove({}, err => err ? console.log(err) : message.channel.send('Users cleared.'));
+            this.db.clearUsers().then(() => console.log('Cleared all users from database.'))
         }
     }
 }
