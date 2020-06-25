@@ -1,11 +1,13 @@
 const Middleware = require('./util/middleware');
 const Discord = require('discord.js');
+const Database = require('./util/db');
 const schedule = require('node-schedule');
 
 class Bot {
     constructor() {
         this.client = new Discord.Client();
         this.handlers = new Middleware();
+        this.db = new Database(process.env.MONGODB);
 
         //Setup event listeners
         this.client.on('ready', () => {

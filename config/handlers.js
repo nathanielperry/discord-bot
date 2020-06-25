@@ -12,23 +12,26 @@ const {
 //Load commands
 const GlobalCommands = require('../modules/GlobalCommands');
 const AdminCommands = require('../modules/AdminCommands');
+const UserCommands = require('../modules/UserModule/UserCommands');
 
 const globalCommandHandler = new GlobalCommands().getHandler();
-const AdminCommandHandler = new AdminCommands().getHandler();
+const adminCommandHandler = new AdminCommands().getHandler();
+const userCommandHandler = new UserCommands().getHandler();
 
 const basicHandler = [
     ignoreBots,
     ignoreDMs,
     diceRoller(),
     globalCommandHandler,
+    userCommandHandler,
 ];
 
 const adminHandler = [
     ignoreBots,
     ignoreDMs,
     restrictToRoles('Admins'),
-    AdminCommandHandler,
-];
+    adminCommandHandler,
+]
 
 module.exports = {
     basicHandler,
