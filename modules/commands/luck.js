@@ -1,13 +1,8 @@
-const { getCommandAndArgs } = require('../util/commandHelpers');
+const { getCommandAndArgs } = require('../../util/commandHelpers');
 
-module.exports = {
-    roll: {
-        hide: true,
-        run(message) {
-            message.channel.send(`The !roll command has been deprecated. You can now roll dice by typing \`${process.env.PREFIX}d6\`, \`${process.env.PREFIX}3d8\`, \`${process.env.PREFIX}2d6 d10! 3d4\`, etc.  Add '!' at end for Acing/Exploding dice.`)
-        }
-    },
-    flip: {
+module.exports = [
+    {
+        name: 'flip',
         description: `Flip a coin.`,
         help: `
             Flips a coin, giving heads or tails. 
@@ -16,14 +11,25 @@ module.exports = {
         `,
         run(message, arg) {
             message.channel.send(`Flipping a coin...`);
-            const flipResult = Math.random() >= 0.5 ? 'Heads' : 'Tails';
+            const randInt = Math.random();
+            let flipResult;
+            if (randInt > 0.9834) {
+                flipResult = 'Side'
+            } else if (randInt > 0.4917) {
+                flipResult = 'Heads'
+            } else {
+                flipResult = 'Tails'
+            }
             let call = null;
 
             if (arg === 'call') {
                 message.channel.send('Someone call it! e.g. "!call heads". You have 30 seconds.');
                 const collector = message.channel.createMessageCollector(msg => {
                     const { command, args } = getCommandAndArgs(msg);
-                    return command === 'call' && (args[0] === 'heads' || args[0] === 'tails');
+                    return command === 'call' &&
+                        (args[0] === 'heads' || 
+                        args[0] === 'tails' ||
+                        args[0] === 'side');
                 }, { time: 30000, errors: ['time'] });
 
                 collector.on('collect', msg => {
@@ -49,7 +55,8 @@ module.exports = {
             }
         }
     },
-    call: {
+    {
+        name: 'call',
         description: `Call a flipped coin.`,
         help: `
             Call a flipped coin! Accepts heads or tails.
@@ -61,4 +68,4 @@ module.exports = {
             return false;
         }
     }
-}
+]

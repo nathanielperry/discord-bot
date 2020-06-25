@@ -1,4 +1,14 @@
 module.exports = {
+    ignoreBots(message, next) {
+        if (message.author.bot) return;
+        next();
+    },
+
+    ignoreDMs(message, next) {
+        if (message.guild === null) return;
+        next();
+    },
+    
     restrictToChannels: (...channels) => {
         const channelsArray = channels.flat(1);
         return (message, next) => {
