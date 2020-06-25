@@ -1,7 +1,9 @@
+const CommandList = require('../modules/CommandList');
 const { throwUserError, fetchMessageById } = require('../util/commandHelpers');
 
-module.exports = {
-    repeat: {
+const commands = [
+    {
+        name: 'repeat',
         description: `Repeats message to given channel name.`,
         help: `
             Speak as the bot in any channel!
@@ -24,7 +26,8 @@ module.exports = {
             }
         }
     },
-    react: {
+    {
+        name: 'react',
         description: `Reacts to a given message id with a given emoji.`,
         help: `
             React to any message by inputting the message id, and the desired emoji.
@@ -45,4 +48,12 @@ module.exports = {
             });
         }
     }
+]
+
+class AdminCommands extends CommandList {
+    constructor(options) {
+        super(commands, options);
+    }
 }
+
+module.exports = AdminCommands;

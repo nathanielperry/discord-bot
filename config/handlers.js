@@ -1,42 +1,33 @@
 // const diceRoller = require('../modules/diceRoller');
-const commandHandler = require('../modules/commandHandler');
 const diceRoller = require('../modules/diceRoller');
-const { restrictToRoles, restrictToChannels, excludeChannels, excludeRoles } = require('../modules/filters');
+const { 
+    ignoreBots,
+    ignoreDMs,
+    restrictToRoles, 
+    restrictToChannels, 
+    excludeChannels, 
+    excludeRoles 
+} = require('../modules/filters');
 
 //Load commands
-const poll = require('../commands/poll');
-const global = require('../commands/global');
-const admin = require('../commands/admin');
-const luck = require('../commands/luck');
+const GlobalCommands = require('../commands/GlobalCommands');
+const AdminCommands = require('../commands/AdminCommands');
 
-// const filter = {
-//     startsWith: '!',
-//     bot: false,
-//     dm: false,
-// };
-
-const basicFilter = (message, next) => {
-    if (message.author.bot) return;
-    if (message.guild === null) return;
-    next();
-}
+const globalCommandHandler = new GlobalCommands().getHandler();
+const AdminCommandHandler = new AdminCommands().getHandler();
 
 const basicHandler = [
-    basicFilter,
+    ignoreBots,
+    ignoreDMs,
     diceRoller(),
-    commandHandler({
-        ...global,
-        ...poll,
-        ...luck,
-    }),
+    globalCommandHandler,
 ];
 
-const adminHandler = [,
-    basicFilter,
+const adminHandler = [
+    ignoreBots,
+    ignoreDMs,
     restrictToRoles('Admins'),
-    commandHandler({
-        ...admin,
-    }),
+    AdminCommandHandler,
 ];
 
 module.exports = {

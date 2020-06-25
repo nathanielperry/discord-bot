@@ -1,13 +1,8 @@
 const { getCommandAndArgs } = require('../util/commandHelpers');
 
-module.exports = {
-    roll: {
-        hide: true,
-        run(message) {
-            message.channel.send(`The !roll command has been deprecated. You can now roll dice by typing \`${process.env.PREFIX}d6\`, \`${process.env.PREFIX}3d8\`, \`${process.env.PREFIX}2d6 d10! 3d4\`, etc.  Add '!' at end for Acing/Exploding dice.`)
-        }
-    },
-    flip: {
+module.exports = [
+    {
+        name: 'flip',
         description: `Flip a coin.`,
         help: `
             Flips a coin, giving heads or tails. 
@@ -16,7 +11,15 @@ module.exports = {
         `,
         run(message, arg) {
             message.channel.send(`Flipping a coin...`);
-            const flipResult = Math.random() >= 0.5 ? 'Heads' : 'Tails';
+            const randInt = Math.random();
+            let flipResult;
+            if (randInt > 0.9834) {
+                flipResult = 'Side'
+            } else if (randInt > 0.4917) {
+                flipResult = 'Heads'
+            } else {
+                flipResult = 'Tails'
+            }
             let call = null;
 
             if (arg === 'call') {
@@ -49,7 +52,8 @@ module.exports = {
             }
         }
     },
-    call: {
+    {
+        name: 'call',
         description: `Call a flipped coin.`,
         help: `
             Call a flipped coin! Accepts heads or tails.
@@ -61,4 +65,4 @@ module.exports = {
             return false;
         }
     }
-}
+]
