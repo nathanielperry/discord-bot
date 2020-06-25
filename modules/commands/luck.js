@@ -1,4 +1,4 @@
-const { getCommandAndArgs } = require('../util/commandHelpers');
+const { getCommandAndArgs } = require('../../util/commandHelpers');
 
 module.exports = [
     {
@@ -26,7 +26,10 @@ module.exports = [
                 message.channel.send('Someone call it! e.g. "!call heads". You have 30 seconds.');
                 const collector = message.channel.createMessageCollector(msg => {
                     const { command, args } = getCommandAndArgs(msg);
-                    return command === 'call' && (args[0] === 'heads' || args[0] === 'tails');
+                    return command === 'call' &&
+                        (args[0] === 'heads' || 
+                        args[0] === 'tails' ||
+                        args[0] === 'side');
                 }, { time: 30000, errors: ['time'] });
 
                 collector.on('collect', msg => {

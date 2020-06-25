@@ -1,6 +1,6 @@
-const CommandList = require('../modules/CommandList');
+const CommandList = require('./CommandList');
 const { throwUserError, sendControllerDM } = require('../util/commandHelpers');
-const luck = require('./luck');
+const luck = require('./commands/luck');
 
 const commands = [
     {

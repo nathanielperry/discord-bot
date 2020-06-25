@@ -10,8 +10,8 @@ const {
 } = require('../modules/filters');
 
 //Load commands
-const GlobalCommands = require('../commands/GlobalCommands');
-const AdminCommands = require('../commands/AdminCommands');
+const GlobalCommands = require('../modules/GlobalCommands');
+const AdminCommands = require('../modules/AdminCommands');
 
 const globalCommandHandler = new GlobalCommands().getHandler();
 const AdminCommandHandler = new AdminCommands().getHandler();
