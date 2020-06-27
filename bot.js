@@ -3,6 +3,17 @@ const Discord = require('discord.js');
 const Database = require('./util/db');
 const schedule = require('node-schedule');
 
+//Temporary solution to catch promise errors.
+//TODO: Refactor error handling to account for async commands.
+process.on('unhandledRejection', (err) => {
+    if (err.name === 'userError') {
+        err.message.channel.send(err.errorMessage);
+    } else {
+        // err.message.channel.send(`Looks like there was an uncaught error. Ping your channel admin to let them know!`)
+        console.error(err);
+    }
+});
+
 class Bot {
     constructor() {
         this.client = new Discord.Client();

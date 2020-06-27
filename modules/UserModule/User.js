@@ -1,33 +1,43 @@
 const mongoose = require('mongoose');
+mongoose.Promise = Promise;
 
 const UserSchema = mongoose.Schema({
-    userId: String,
+    _id: String,
+    coins: { type: Number, default: 0 },
+    activity: { type: Number, default: 0 },
 });
 
-const User = mongoose.model('User', UserSchema);
+//Instance Methods
+UserSchema.methods.giveCoins = function(amt) {
+    this.coins = Math.floor(Math.max(0, this.coins + amt));
+    return this.save();
+}
 
-module.exports = {
-    findUser(id) {
-        return User.find({ userId: id }, (err, user) => {
-            if (err) throw err;
-            return user;
-        });
-    },
+UserSchema.methods.getBalance = function() {
+    return this.coins;
+}
 
-    createUser(id) {
-        return User.create({ userId: id }, (err, user) => {
-            if (err) throw err;
-            return user;
-        });
-    },
+//Static Methods
+UserSchema.statics.clearAll = function() {
+    return this.deleteMany({});
+}
 
-    clearUsers() {
-        return User.deleteMany({}, err => {
-            if (err) {
-                throw err;
-            } else {
-                return true;
-            };
-        });
+UserSchema.statics.createUser = async function(userId) {
+    const existingUser = await this.getUserById(userId);
+    if (!existingUser) {
+        return this.create({ _id: userId });
+    } else {
+        return false;
     }
-};
+}
+
+UserSchema.statics.getUsers = function() {
+    return this.find({});
+}
+
+UserSchema.statics.getUserById = function(userId) {
+    return this.findById(userId);
+}
+
+const User = mongoose.model('User', UserSchema);
+module.exports = User;

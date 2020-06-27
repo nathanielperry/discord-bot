@@ -50,7 +50,9 @@ module.exports = class CommandList {
             let { command, args } = getCommandAndArgs(message, this.prefix);
     
             const run = this._getCommandFunction(command.toLowerCase());
-            if (run) { run(message, ...args); }
+            if (run) { 
+                run(message, ...args);
+            }
 
             next();
         }

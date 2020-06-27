@@ -31,9 +31,9 @@ const adminHandler = [
     ignoreDMs,
     restrictToRoles('Admins'),
     adminCommandHandler,
-]
+];
 
 module.exports = {
     basicHandler,
     adminHandler
-}
+};

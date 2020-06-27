@@ -1,26 +1,48 @@
 const CommandList = require('../CommandList');
-const Users = require('./User');
+const { throwUserError, getIdFromMention } = require('../../util/commandHelpers');
+const User = require('./User');
 
 const commands = [
     {
         name: 'join',
-        run(message) {
+        async run(message) {
             const userId = message.author.id;
-            Users.findUser(userId)
-            .then(user => {
-                if (!user.length) {
-                    Users.createUser(userId);
-                    message.channel.send(`<@${userId}> added to database.`);
-                } else {
-                    message.channel.send(`<@${userId}> already exists in database.`);
-                }
-            });
+            const newUser = await User.createUser(userId);
+            if (newUser) {
+                message.channel.send(`<@${userId}> added to database.`);
+            } else {
+                message.channel.send(`<@${userId}> already exists in database.`);
+            }
+        }
+    },
+    {
+        name: 'give',
+        async run(message, mention, amt) {
+            const userId = getIdFromMention(mention);
+            const num = parseInt(amt);
+            const user = await User.getUserById(userId);
+            if (!user) throwUserError('Invalid user provided.', message);
+            if (!Number.isInteger(num)) throwUserError('Invalid amount provided.', message);
+            
+            await user.giveCoins(num);
+            message.channel.send(`Gave ${num} coins to ${mention} successfully.`);
+
+            return user;
+        }
+    },
+    {
+        name: 'balance',
+        async run(message, mention) {
+            const userId = mention ? getIdFromMention(mention) : message.author.id;
+            let user = await User.getUserById(userId);
+            if (!user) throwUserError('Invalid user provided.', message);
+            message.channel.send(`<@${userId}> has a balance of ${user.getBalance()} coins.`);
         }
     },
     {
         name: 'clear',
-        run(message) {
-            Users.clearUsers();
+        async run(message) {
+            const results = await User.deleteMany({});
         }
     }
 ];  
