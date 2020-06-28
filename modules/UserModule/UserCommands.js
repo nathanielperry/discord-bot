@@ -2,17 +2,15 @@ const CommandList = require('../CommandList');
 const { throwUserError, getIdFromMention } = require('../../util/commandHelpers');
 const User = require('./User');
 
+const createUser = async function(message, userId) {
+    const newUser = await User.createUser(userId);
+}
+
 const commands = [
     {
         name: 'join',
         async run(message) {
-            const userId = message.author.id;
-            const newUser = await User.createUser(userId);
-            if (newUser) {
-                message.channel.send(`<@${userId}> added to database.`);
-            } else {
-                message.channel.send(`<@${userId}> already exists in database.`);
-            }
+            createUser(message, message.author.id);
         }
     },
     {
@@ -40,6 +38,17 @@ const commands = [
         }
     },
     {
+        name: 'joinall',
+        async run(message) {
+            const members = message.guild.members.filter(member => {
+                return member.roles.find(role => role.name === 'Initiated');
+            })
+            members.forEach(async member => {
+                createUser(message, member.id);
+            });
+        }
+    },
+    {
         name: 'clear',
         async run(message) {
             const results = await User.deleteMany({});
@@ -50,5 +59,6 @@ const commands = [
 module.exports = class UserCommands extends CommandList {
     constructor(options) {
         super(commands, options);
+        this.User = User;
     }
 }

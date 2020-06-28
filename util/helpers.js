@@ -9,5 +9,8 @@ module.exports = {
     },
     setDefaults(options, defaults) {
         return _.defaults({}, _.clone(options), defaults);
-    }
+    },
+    constrainInt(min, max, int) {
+        return Math.floor(Math.max(min, Math.min(int, max)));
+    },
 }

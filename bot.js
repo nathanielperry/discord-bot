@@ -1,7 +1,8 @@
 const Middleware = require('./util/middleware');
 const Discord = require('discord.js');
 const Database = require('./util/db');
-const schedule = require('node-schedule');
+const CronJob = require('cron').CronJob;
+const dfns = require('date-fns');
 
 //Temporary solution to catch promise errors.
 //TODO: Refactor error handling to account for async commands.
@@ -57,8 +58,11 @@ class Bot {
         });
     }
 
-    addScheduledTask(time, fn) {
-        schedule.scheduleJob(time, fn);
+    addScheduledTask(title, time, fn) {
+        const job = new CronJob(time, function() {
+            console.log(`-- Running Scheduled Task: ${title} @ ${dfns.format(Date.now(), 'h:mm:ss')} --`);
+            fn();
+        }, null, true);
     }
 
     login() {

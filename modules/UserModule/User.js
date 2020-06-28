@@ -1,16 +1,39 @@
 const mongoose = require('mongoose');
+const { constrainInt } = require('../../util/helpers');
 mongoose.Promise = Promise;
+
+const MAXACTIVITY = 6;
 
 const UserSchema = mongoose.Schema({
     _id: String,
-    coins: { type: Number, default: 0 },
-    activity: { type: Number, default: 0 },
+    coins: { type: Number, default: 0, min: 0 },
+    activity: { type: Number, default: 0, max: MAXACTIVITY },
+    dailyStreak: { type: Number, default: 0 },
 });
 
 //Instance Methods
 UserSchema.methods.giveCoins = function(amt) {
     this.coins = Math.floor(Math.max(0, this.coins + amt));
     return this.save();
+}
+
+UserSchema.methods.giveActivity = function(amt) {
+    this.activity = constrainInt(0, MAXACTIVITY, this.activity + amt);
+    return this.save();
+}
+
+UserSchema.methods.giveDailyStreak = function(amt) {
+    this.dailyStreak = Math.floor(this.dailyStreak + amt);
+    return this.save();
+}
+
+UserSchema.methods.setDailyStreak = function(amt) {
+    this.dailyStreak = amt;
+    return this.save();
+}
+
+UserSchema.methods.getDailyStreakMultiplier = function() {
+    return Math.floor(this.dailyStreak / 5) + 1;
 }
 
 UserSchema.methods.getBalance = function() {
