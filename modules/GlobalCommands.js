@@ -6,6 +6,7 @@ const commands = [
     {
         name: 'test',
         description: `Just a test command! Nothing to see here!`,
+        admin: true,
         help: `
             Just a test command! Nothing to see here!
         `,

@@ -6,15 +6,25 @@ module.exports = class CommandList {
         this.commands = commands;
         options = setDefaults(options, {
             prefix: process.env.PREFIX,
+            adminRole: process.env.ADMINROLE || 'Admins',
         });
 
         this.prefix = options.prefix;
+        this.adminRole = options.adminRole;
     }
 
     _findCommand(str) {
         return this.commands.find(cmd => {
             return cmd.name === str;
         });
+    }
+
+    _getCommandObject(name) {
+        const command = this._findCommand(name);
+        if (command) {
+            return command;
+        }
+        return null;
     }
 
     _getCommandFunction(name) {
@@ -40,7 +50,6 @@ module.exports = class CommandList {
         }, []);
     }
 
-
     getHandler() {
         return (message, next) => {    
             //Pass message onto next middleware if missing or incorrect command prefix
@@ -49,11 +58,13 @@ module.exports = class CommandList {
             //Search for matching command and run it, passing any arguments
             let { command, args } = getCommandAndArgs(message, this.prefix);
     
-            const run = this._getCommandFunction(command.toLowerCase());
-            if (run) { 
-                run(message, ...args);
-            }
+            const cmd = this._getCommandObject(command.toLowerCase());
+            const isAdmin = message.member.roles.some(role => role.name === this.adminRole);
 
+            if (cmd) {
+                if (cmd.admin !== false && !isAdmin) return next();
+                if (cmd.run) cmd.run(message, ...args);
+            }
             next();
         }
     }

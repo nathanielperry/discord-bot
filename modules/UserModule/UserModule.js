@@ -54,7 +54,7 @@ module.exports = class UserModule {
                 }
 
                 //Provide income at 10 * activity level * (dailyStreak/5).
-                await user.giveCoins(this.getDailyStreakMultiplier() * user.activity * 10);
+                await user.giveCoins(user.getDailyStreakMultiplier() * user.activity * 10);
             });
         });
     }
