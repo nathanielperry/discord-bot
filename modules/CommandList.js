@@ -62,7 +62,11 @@ module.exports = class CommandList {
             const isAdmin = message.member.roles.some(role => role.name === this.adminRole);
 
             if (cmd) {
-                if (cmd.admin !== false && !isAdmin) return next();
+                //Do not run admin commands if not admin.
+                if (cmd.admin && !isAdmin) {
+                    return next();
+                }
+
                 if (cmd.run) cmd.run(message, ...args);
             }
             next();

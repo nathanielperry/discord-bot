@@ -1,6 +1,22 @@
 const UserCommands = require('./UserCommands');
 const User = require('./User');
 
+const filters = {
+    requireCoins(amt, deduct = true) {
+        return async (message, next) => {
+            const userId = message.author.id;
+            const num = parseInt(amt);
+            const user = await User.getUserById(userId);
+
+            if (!Number.isInteger(num)) throw "Invalid ammount provided to requireCoins filter.";
+            if (user.getBalance() < num) return false;
+            if (deduct) user.giveCoins(-num);
+            
+            next();
+        }
+    }
+}
+
 module.exports = class UserModule {
     constructor() {
         this.UserCommands = new UserCommands();
