@@ -1,11 +1,20 @@
 module.exports = {
+    onReject(filter, fn) {
+        return (message, next) => {
+            const filterResult = filter(message, next);
+            message.channel.send('f-result: ', filterResult);
+            if (filterResult === false) return fn(message, next);
+            next();
+        }
+    },
+
     ignoreBots(message, next) {
-        if (message.author.bot) return;
+        if (message.author.bot) return false;
         next();
     },
 
     ignoreDMs(message, next) {
-        if (message.guild === null) return;
+        if (message.guild === null) return false;
         next();
     },
     
@@ -64,4 +73,19 @@ module.exports = {
             return isExcluded ? false: next();
         }
     },
+
+    filterContent(...strings) {
+        const stringsArray = strings.flat(1);
+        return (message, next) => {
+            const content = message.content;
+            const containsFilteredString = stringsArray.some(filter => {              
+                if (filter instanceof RegExp) return filter.test(content);
+                if (typeof filter === 'string') return content.includes(filter);
+                return false;
+            });
+
+            if (containsFilteredString) return false;
+            return next();
+        }
+    }
 }
