@@ -76,7 +76,7 @@ module.exports = {
 
     filterContent(...strings) {
         const stringsArray = strings.flat(1);
-        return (message, next) => {
+        return (message, next, eject) => {
             const content = message.content;
             const containsFilteredString = stringsArray.some(filter => {              
                 if (filter instanceof RegExp) return filter.test(content);
@@ -84,8 +84,11 @@ module.exports = {
                 return false;
             });
 
-            if (containsFilteredString) return false;
-            return next();
+            if (containsFilteredString) {
+                return eject();
+            } else {
+                return next();
+            }
         }
     }
 }

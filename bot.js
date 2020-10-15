@@ -44,7 +44,7 @@ class Bot {
         });
     }
 
-    addMessageHandler(subHandlers) {
+    addMessageHandler(subHandlers, ejectHandler) {
         //Create new handler stack
         const handler = new Middleware();
         subHandlers.forEach(h => {
@@ -53,9 +53,26 @@ class Bot {
 
         //Add to main handler stack.
         this.handlers.use((message, next) => {
-            handler.run(message);
-            next();
+            const result = handler.run(message);
+            //If handler is ejected, run ejectHandler instead of next subHandler.
+            if (!result.ejected) {
+                next();
+            } else if (ejectHandler) {
+                ejectHandler(message, next);
+            } else {
+                return false;
+            }
         });
+    }
+
+    redirect(subHandlers) {
+        //Create and run new handler / redirect
+        const handler = new Middleware();
+        subHandlers.forEach(h => {
+            handler.use(h);
+        });
+
+        handler.run(message);
     }
 
     addScheduledTask(title, time, fn) {

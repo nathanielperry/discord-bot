@@ -1,3 +1,4 @@
+const fs = require('fs');
 require('dotenv').config({
     path: `./config/.env.${process.env.NODE_ENV}`
 });
@@ -10,12 +11,14 @@ const bot = new Bot();
 //Handlers & Commands
 const diceRoller = require('./modules/diceRoller');
 const { 
+    onReject,
     ignoreBots,
     ignoreDMs,
     restrictToRoles, 
     restrictToChannels, 
     excludeChannels, 
-    excludeRoles 
+    excludeRoles,
+    filterContent
 } = require('./modules/filters');
 
 const GlobalCommands = require('./modules/GlobalCommands');
@@ -29,6 +32,15 @@ const adminCommandHandler = new AdminCommands().getHandler();
 const userCommandHandler = userModule.getCommandHandler();
 
 userModule.init(bot);
+
+//Global language filter
+let badWordsString = fs.readFileSync('config/bad-words.txt', 'utf8');
+let badWordsArray = badWordsString.split('\n');
+bot.addMessageHandler([
+    filterContent(badWordsArray),
+], (message, next) => {
+    message.delete();
+});
 
 //Basic commands
 bot.addMessageHandler([
