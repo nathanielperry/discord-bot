@@ -10,7 +10,7 @@ class Middleware {
     }
 
     next() {
-        if (this.step < this.stack.length) {
+        if (!this.ejected && this.step < this.stack.length) {
             this.stack[this.step++](this.hook, this.next.bind(this), this.eject.bind(this));
         }
     }
@@ -22,6 +22,7 @@ class Middleware {
     run(hook) {
         this.hook = hook || {};
         this.step = 0;
+        this.ejected = false;
         this.next();
 
         return this;

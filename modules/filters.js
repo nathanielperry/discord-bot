@@ -1,9 +1,20 @@
 module.exports = {
     onReject(filter, fn) {
-        return (message, next) => {
-            const filterResult = filter(message, next);
-            message.channel.send('f-result: ', filterResult);
+        return (message, next, eject) => {
+            const filterResult = filter(message, next, eject);
             if (filterResult === false) return fn(message, next);
+            next();
+        }
+    },
+
+    ejectOnFail(filter, ejectHandler = () => false) {
+        return (message, next, eject) => {
+            const filterResult = filter(message, next, eject);
+            console.log(filterResult);
+            if (filterResult === false) {
+                eject();
+                ejectHandler(message, next);
+            }
             next();
         }
     },
@@ -76,7 +87,7 @@ module.exports = {
 
     filterContent(...strings) {
         const stringsArray = strings.flat(1);
-        return (message, next, eject) => {
+        return (message, next) => {
             const content = message.content;
             const containsFilteredString = stringsArray.some(filter => {              
                 if (filter instanceof RegExp) return filter.test(content);
@@ -85,10 +96,9 @@ module.exports = {
             });
 
             if (containsFilteredString) {
-                return eject();
-            } else {
-                return next();
+                return false;
             }
+            next();
         }
     }
 }

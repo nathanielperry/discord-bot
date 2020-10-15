@@ -18,7 +18,8 @@ const {
     restrictToChannels, 
     excludeChannels, 
     excludeRoles,
-    filterContent
+    filterContent,
+    ejectOnFail,
 } = require('./modules/filters');
 
 const GlobalCommands = require('./modules/GlobalCommands');
@@ -37,8 +38,8 @@ userModule.init(bot);
 let badWordsString = fs.readFileSync('config/bad-words.txt', 'utf8');
 let badWordsArray = badWordsString.split('\n');
 bot.addMessageHandler([
-    filterContent(badWordsArray),
-], (message, next) => {
+    ejectOnFail(filterContent(badWordsArray)),
+], (message) => {
     message.delete();
 });
 
