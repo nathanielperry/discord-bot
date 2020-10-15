@@ -7,14 +7,17 @@ module.exports = {
         }
     },
 
-    ejectOnFail(filter, ejectHandler = () => false) {
+    ejectOnFail(filters, ejectHandler = () => false) {
+        const filtersArray = [].concat(filters);
         return (message, next, eject) => {
-            const filterResult = filter(message, next, eject);
-            console.log(filterResult);
-            if (filterResult === false) {
-                eject();
-                ejectHandler(message, next);
-            }
+            filtersArray.forEach(filter => {
+                const filterResult = filter(message, next, eject);
+                if (filterResult === false) {
+                    eject();
+                    ejectHandler(message, next);
+                    return false;
+                }
+            });
             next();
         }
     },
