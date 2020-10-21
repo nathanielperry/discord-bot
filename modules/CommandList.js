@@ -4,13 +4,13 @@ const { getCommandAndArgs } = require('../util/commandHelpers');
 module.exports = class CommandList {
     constructor(commands, options) {
         this.commands = commands;
-        options = setDefaults(options, {
+        this.options = setDefaults(options, {
             prefix: process.env.PREFIX,
             adminRole: process.env.ADMINROLE || 'Admins',
         });
 
-        this.prefix = options.prefix;
-        this.adminRole = options.adminRole;
+        this.prefix = this.options.prefix;
+        this.adminRole = this.options.adminRole;
     }
 
     _findCommand(str) {
@@ -67,7 +67,7 @@ module.exports = class CommandList {
                     return next();
                 }
 
-                if (cmd.run) cmd.run(message, ...args);
+                if (cmd.run) cmd.run.bind(this)(message, ...args);
             }
             next();
         }
