@@ -3,6 +3,7 @@ const Discord = require('discord.js');
 const Database = require('./util/db');
 const CronJob = require('cron').CronJob;
 const dfns = require('date-fns');
+const events = require('./util/event');
 
 //Temporary solution to catch promise errors.
 //TODO: Refactor error handling to account for async commands.
@@ -28,6 +29,7 @@ class Bot {
             this.client.guilds.forEach((guild) => {
                 console.log(` - ${guild.name}`);
             });
+            events.emit('bot-connected');
         });
         
         this.client.on('message', (message) => {

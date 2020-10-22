@@ -64,7 +64,7 @@ const commands = [
         admin: true,
         async run(message) {
             const members = message.guild.members.filter(member => {
-                return member.roles.find(role => role.name === 'Initiated');
+                return member.roles.find(role => role.name === process.env.ECONOMY_ROLE_NAME);
             })
             members.forEach(async member => {
                 createUser(message, member.id);

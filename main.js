@@ -1,4 +1,5 @@
 const fs = require('fs');
+const events = require('./util/event');
 require('dotenv').config({
     path: `./config/.env.${process.env.NODE_ENV}`
 });
@@ -26,15 +27,16 @@ const UserModule = require('./modules/UserModule/UserModule');
 const PostCommand = require('./modules/commands/post');
 const { requireEcon } = require('./modules/UserModule/UserFilters');
 
-const userModule = new UserModule();
-const postCommand = new PostCommand({ channelId: process.env.BULLETIN_CHANNEL_ID });
+const userModule = new UserModule(bot);
+//TODO: Separate event for bot-connect AND db-ready
+events.on('bot-connected', () => userModule.init());
 
+const postCommand = new PostCommand({ channelId: process.env.BULLETIN_CHANNEL_ID });
 const globalCommandHandler = new GlobalCommands().getHandler();
 const adminCommandHandler = new AdminCommands().getHandler();
-const userCommandHandler = userModule.getCommandHandler();
+const userCommandHandler = userModule.getHandler();
 const postCommandHandler = postCommand.getHandler();
 
-userModule.init(bot);
 
 //Global language filter
 let badWordsString = fs.readFileSync('config/bad-words.txt', 'utf8');

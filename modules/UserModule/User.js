@@ -22,6 +22,11 @@ UserSchema.methods.giveActivity = function(amt) {
     return this.save();
 }
 
+UserSchema.methods.setActivity = function(amt) {
+    this.activity = Math.max(0, amt);
+    return this.save();
+}
+
 UserSchema.methods.giveDailyStreak = function(amt) {
     this.dailyStreak = Math.floor(this.dailyStreak + amt);
     return this.save();
