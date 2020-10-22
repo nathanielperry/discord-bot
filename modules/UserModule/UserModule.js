@@ -13,9 +13,9 @@ module.exports = class UserModule {
     //* can check for module dependency
     async increaseActivity() {
         //Add any new users to database
-        this.bot.client.guilds.forEach(guild => {
-            const members = guild.members.filter(member => {
-                return member.roles.find(role => role.name === process.env.ECONOMY_ROLE_NAME);
+        this.bot.client.guilds.cache.forEach(guild => {
+            const members = guild.members.cache.filter(member => {
+                return member.roles.cache.find(role => role.name === process.env.ECONOMY_ROLE_NAME);
             })
             members.forEach(async member => {
                 this.User.createUser(member.id);
@@ -26,7 +26,7 @@ module.exports = class UserModule {
         //user that sent a message in the last hour.
         const users = await this.User.getUsers();
         users.forEach(async user => {
-            const guildUser = await this.bot.client.fetchUser(user._id);
+            const guildUser = await this.bot.client.users.fetch(user._id);
             if (guildUser.lastMessage) {
                 const timeSinceLastMessage = Date.now() - guildUser.lastMessage.createdTimestamp;
                 if (timeSinceLastMessage < 1000 * 60 * 60) {
@@ -43,7 +43,7 @@ module.exports = class UserModule {
     async dailyIncome() {
         const users = await this.User.getUsers();
         users.forEach(async user => {
-            const guildUser = await bot.client.fetchUser(user._id);
+            const guildUser = await bot.client.users.fetch(user._id);
             const timeSinceLastMessage = guildUser.lastMessage ? Date.now() - guildUser.lastMessage.createdTimestamp : null;
 
             if (!timeSinceLastMessage && timeSinceLastMessage > 1000 * 60 * 60 * 24) {

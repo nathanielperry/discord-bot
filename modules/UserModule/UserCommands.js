@@ -63,8 +63,8 @@ const commands = [
         name: 'joinall',
         admin: true,
         async run(message) {
-            const members = message.guild.members.filter(member => {
-                return member.roles.find(role => role.name === process.env.ECONOMY_ROLE_NAME);
+            const members = message.guild.members.cache.filter(member => {
+                return member.roles.cache.find(role => role.name === process.env.ECONOMY_ROLE_NAME);
             })
             members.forEach(async member => {
                 createUser(message, member.id);

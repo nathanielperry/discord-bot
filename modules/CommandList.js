@@ -59,7 +59,7 @@ module.exports = class CommandList {
             let { command, args } = getCommandAndArgs(message, this.prefix);
     
             const cmd = this._getCommandObject(command.toLowerCase());
-            const isAdmin = message.member.roles.some(role => role.name === this.adminRole);
+            const isAdmin = message.member.roles.cache.some(role => role.name === this.adminRole);
 
             if (cmd) {
                 //Do not run admin commands if not admin.
@@ -80,7 +80,7 @@ module.exports = class CommandList {
 
             let { command, args } = getCommandAndArgs(message, this.prefix);    
             const cmd = this._getCommandObject(command.toLowerCase());
-            const isAdmin = message.member.roles.some(role => role.name === this.adminRole);
+            const isAdmin = message.member.roles.cache.some(role => role.name === this.adminRole);
 
             //Invalid command name
             if (!cmd) return false;

@@ -6,7 +6,7 @@ const commands = [
         description: 'Post to the group-bulletin channel',
         run(message, ...content) {
             const guild = message.channel.guild;
-            const targetChannel = guild.channels.get(this.options.channelId);
+            const targetChannel = guild.channels.cache.get(this.options.channelId);
             if (targetChannel) {
                 //If channel exists, send content.
                 targetChannel.send(`--- <@${message.author.id}> posted the following bulletin:\n` + content.join(' '));

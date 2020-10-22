@@ -13,7 +13,7 @@ const commands = [
         hide: true,
         run(message, arg, ...content) {
             const guild = message.channel.guild;
-            const targetChannel = guild.channels.find(channel => {
+            const targetChannel = guild.channels.cache.find(channel => {
                 //Find matching text only channel.
                 return channel.name.includes(arg) && channel.type === 'text';
             });

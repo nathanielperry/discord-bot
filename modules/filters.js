@@ -66,7 +66,7 @@ module.exports = {
     restrictToRoles: (...roles) => {
         const rolesArray = roles.flat(1);
         return (message, next) => {
-            const userRoles = message.member.roles;
+            const userRoles = message.member.roles.cache;
 
             const hasPermission = rolesArray.some(allowedRole => {
                 if (allowedRole instanceof RegExp && userRoles.some(r => allowedRole.test(r.name))) return true;
@@ -81,7 +81,7 @@ module.exports = {
     excludeRoles: (...roles) => {
         const rolesArray = roles.flat(1);
         return (message, next) => {
-            const userRoles = message.member.roles;
+            const userRoles = message.member.roles.cache;
 
             const isExcluded = rolesArray.some(allowedRole => {
                 if (allowedRole instanceof RegExp && userRoles.some(r => allowedRole.test(r.name))) return true;

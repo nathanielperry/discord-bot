@@ -42,13 +42,13 @@
     },
 
     fetchMessageById (guild, messageId) {
-        const messages = guild.channels.map(channel => {
+        const messages = guild.channels.cache.map(channel => {
             //Only search in text channels
             if (channel.type !== 'text') {
                 return null;
             }
             //Return promise array, containing all attempts
-            return channel.fetchMessage(messageId).then(msg => {
+            return channel.messages.fetch(messageId).then(msg => {
                 return msg;
             }).catch(err => {
                 return null;

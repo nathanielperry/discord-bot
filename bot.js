@@ -26,7 +26,7 @@ class Bot {
         this.client.on('ready', () => {
             console.log(`Connected as ${this.client.user.tag}.`);
             console.log(`Servers: `);
-            this.client.guilds.forEach((guild) => {
+            this.client.guilds.cache.forEach((guild) => {
                 console.log(` - ${guild.name}`);
             });
             events.emit('bot-connected');
