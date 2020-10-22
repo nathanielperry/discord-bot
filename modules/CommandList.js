@@ -72,4 +72,22 @@ module.exports = class CommandList {
             next();
         }
     }
+
+    isValidCommand() {
+        return (message, next) => {
+            //Invalid prefix
+            if (!message.content.startsWith(this.prefix)) return false;
+
+            let { command, args } = getCommandAndArgs(message, this.prefix);    
+            const cmd = this._getCommandObject(command.toLowerCase());
+            const isAdmin = message.member.roles.some(role => role.name === this.adminRole);
+
+            //Invalid command name
+            if (!cmd) return false;
+            //Invalid permissions
+            if(cmd.admin && !isAdmin) return false;
+
+            return next();
+        }
+    }
 }

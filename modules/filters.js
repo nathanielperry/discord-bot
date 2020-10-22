@@ -1,7 +1,9 @@
+const { result } = require("underscore");
+
 module.exports = {
     onReject(filter, fn) {
-        return (message, next, eject) => {
-            const filterResult = filter(message, next, eject);
+        return async (message, next, eject) => {
+            const filterResult = await filter(message, next, eject);
             if (filterResult === false) return fn(message, next);
             next();
         }
@@ -9,15 +11,18 @@ module.exports = {
 
     ejectOnFail(filters, ejectHandler = () => false) {
         const filtersArray = [].concat(filters);
-        return (message, next, eject) => {
-            filtersArray.forEach(filter => {
-                const filterResult = filter(message, next, eject);
-                if (filterResult === false) {
-                    eject();
-                    ejectHandler(message, next);
-                    return false;
-                }
+        return async (message, next, eject) => {
+            const filterResults = filtersArray.map(filter => {
+                const result = filter(message, next, eject);
+                return result;
             });
+
+            const finalResults = await Promise.all(filterResults);
+            if (!finalResults.every(res => res !== false)) {
+                eject();
+                ejectHandler(message, next);
+                return false;
+            }
             next();
         }
     },

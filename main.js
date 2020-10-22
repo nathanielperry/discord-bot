@@ -3,8 +3,6 @@ require('dotenv').config({
     path: `./config/.env.${process.env.NODE_ENV}`
 });
 
-const { fetchMemberById } = require('./util/commandHelpers');
-
 const Bot = require('./Bot');
 const bot = new Bot();
 
@@ -25,12 +23,16 @@ const {
 const GlobalCommands = require('./modules/GlobalCommands');
 const AdminCommands = require('./modules/AdminCommands');
 const UserModule = require('./modules/UserModule/UserModule');
+const PostCommand = require('./modules/commands/post');
+const { requireEcon } = require('./modules/UserModule/UserFilters');
 
 const userModule = new UserModule();
+const postCommand = new PostCommand({ channelId: process.env.BULLETIN_CHANNEL_ID });
 
 const globalCommandHandler = new GlobalCommands().getHandler();
 const adminCommandHandler = new AdminCommands().getHandler();
 const userCommandHandler = userModule.getCommandHandler();
+const postCommandHandler = postCommand.getHandler();
 
 userModule.init(bot);
 
@@ -45,21 +47,34 @@ bot.addMessageHandler([
     message.delete();
 });
 
+//Bot and DM filter
+bot.addMessageHandler([
+    ejectOnFail([
+        ignoreBots,
+        ignoreDMs,
+    ]),
+]);
+
 //Basic commands
 bot.addMessageHandler([
-    ignoreBots,
-    ignoreDMs,
     diceRoller(),
     globalCommandHandler,
     userCommandHandler,
 ]);
 
+//Post command
+//TODO: Create easier syntax for including paid commands
+bot.addMessageHandler([
+    postCommand.isValidCommand(),
+    ejectOnFail(requireEcon(500)),
+    postCommandHandler
+]);
+
 //Admin commands
 bot.addMessageHandler([
-    ignoreBots,
-    ignoreDMs,
     restrictToRoles('Admins'),
     adminCommandHandler,
 ]);
+
 
 bot.login();
